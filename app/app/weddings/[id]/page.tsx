@@ -39,6 +39,7 @@ export default async function WeddingDetailPage({
   let wedding: Wedding | null = null;
   let payments: ClientPayment[] = [];
   let tasks: WeddingTask[] = [];
+  let weddingVendors: any[] = [];
   let errorMsg: string | null = null;
 
   try {
@@ -77,6 +78,21 @@ export default async function WeddingDetailPage({
 
     if (!taskErr && taskData) {
       tasks = taskData;
+    }
+
+    // 4. Fetch contracted wedding vendors
+    const { data: vData } = await supabase
+      .from("wedding_vendors")
+      .select(`
+        *,
+        vendor:vendors (id, name, city, rating, phone, category),
+        source_quote:vendor_quotes (id, quote_request_id, price_per_plate, total, status)
+      `)
+      .eq("wedding_id", id)
+      .order("created_at", { ascending: false });
+
+    if (vData) {
+      weddingVendors = vData;
     }
   } catch (err: any) {
     console.error("WeddingDetailPage error:", err);
@@ -384,6 +400,89 @@ export default async function WeddingDetailPage({
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Contracted Artisan Vendors Section */}
+      <div className="royal-card p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+          <div>
+            <h3 className="text-xl font-serif font-bold text-navy flex items-center space-x-2">
+              <Building className="w-5 h-5 text-gold" />
+              <span>Contracted Artisan Vendors</span>
+            </h3>
+            <p className="text-xs text-navy/60">
+              Procured vendor partners across catering, decor, photography, and hospitality
+            </p>
+          </div>
+          <Link
+            href="/vendor-quotes"
+            className="btn-gold text-xs py-1.5 px-3.5 inline-flex items-center space-x-1.5 self-start sm:self-auto"
+          >
+            <span>+ Tender Quote Request (RFP)</span>
+          </Link>
+        </div>
+
+        {weddingVendors.length === 0 ? (
+          <div className="text-center py-8 border border-dashed border-gray-200 rounded-xl text-xs text-gray-500 space-y-2">
+            <p>No vendors contracted yet for this wedding celebration.</p>
+            <Link
+              href="/vendor-quotes"
+              className="text-gold-dark font-semibold hover:underline inline-block"
+            >
+              Tender a Vendor Quote Request &rarr;
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100 text-xs">
+            {weddingVendors.map((wv) => (
+              <div
+                key={wv.id}
+                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-ivory/50 px-2 rounded-lg transition-colors"
+              >
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      href={`/vendors/${wv.vendor_id}`}
+                      className="font-serif text-base font-bold text-navy hover:text-gold-dark transition-colors"
+                    >
+                      {wv.vendor?.name || "Vendor Partner"}
+                    </Link>
+                    <span className="text-[10px] font-semibold bg-[#F5EEDF] text-[#8C7142] px-2 py-0.5 rounded border border-[#C6A46A]/25">
+                      {wv.category || wv.vendor?.category || "Artisan"}
+                    </span>
+                    {wv.is_demo ? <DemoBadge /> : null}
+                  </div>
+                  <div className="flex items-center space-x-3 text-[11px] text-gray-500 mt-1">
+                    <span>Base: {wv.vendor?.city}</span>
+                    {wv.vendor?.phone && <span>• Tel: {wv.vendor.phone}</span>}
+                    <span>• Status: <strong className="text-emerald-700">{wv.status}</strong></span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 self-end sm:self-center">
+                  <div className="text-right">
+                    <span className="text-base font-serif font-bold text-navy block">
+                      {formatINR(Number(wv.agreed_amount))}
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      Agreed contract
+                    </span>
+                  </div>
+
+                  {wv.source_quote?.quote_request_id && (
+                    <Link
+                      href={`/vendor-quotes/${wv.source_quote.quote_request_id}`}
+                      className="text-xs font-semibold text-gold-dark hover:underline flex items-center bg-ivory px-2.5 py-1 rounded-lg border border-gray-200"
+                      title="Inspect Awarded Tender Proposal"
+                    >
+                      <span>Source Quote &rarr;</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Vendor } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
@@ -127,9 +128,14 @@ export default async function VendorsPage({
                 </div>
 
                 <div className="flex items-start justify-between">
-                  <h3 className="text-xl font-serif font-bold text-navy">
-                    {vendor.name}
-                  </h3>
+                  <Link
+                    href={`/vendors/${vendor.id}`}
+                    className="hover:text-gold-dark transition-colors"
+                  >
+                    <h3 className="text-xl font-serif font-bold text-navy hover:text-gold-dark transition-colors">
+                      {vendor.name}
+                    </h3>
+                  </Link>
                   <div className="flex items-center space-x-1 bg-amber-50 px-2 py-0.5 rounded-md text-amber-700 font-semibold text-xs border border-amber-200 flex-shrink-0 ml-2">
                     <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                     <span>{Number(vendor.rating).toFixed(1)}</span>

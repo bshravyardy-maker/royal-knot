@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   Database,
   Building,
+  FileSpreadsheet,
 } from "lucide-react";
 import Link from "next/link";
 import { fetchOverviewMetrics } from "@/lib/overview";
@@ -96,8 +97,16 @@ export default async function OverviewPage() {
           </p>
         </div>
 
-        {/* Database Connection Status */}
-        <div className="flex items-center space-x-2">
+        {/* Status Indicators & Open Quote Requests */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/vendor-quotes"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-gold/15 text-gold-dark border border-gold/30 text-xs font-semibold hover:bg-gold/25 transition-colors"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-gold" />
+            <span>{metrics.openQuoteRequestsCount} Open Quote Requests (RFPs)</span>
+          </Link>
+
           {isDbConnected ? (
             <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
