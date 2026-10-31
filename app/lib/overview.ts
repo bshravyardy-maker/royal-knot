@@ -103,23 +103,51 @@ export async function fetchOverviewMetrics(): Promise<{
       };
     });
 
-    // Monthly Revenue Chart Data from client_payments paid_at / due_date
+    // Monthly Revenue Chart Data strictly grouped by client_payments.paid_at
     const monthlyMap: Record<string, number> = {};
     payments
-      .filter((p) => p.status === "Paid")
+      .filter((p) => p.paid_at)
       .forEach((p) => {
-        const dateStr = p.paid_at || p.due_date;
-        if (dateStr) {
-          const d = new Date(dateStr);
-          const monthKey = d.toLocaleString("default", { month: "short", year: "numeric" });
-          monthlyMap[monthKey] = (monthlyMap[monthKey] || 0) + Number(p.amount || 0);
-        }
+        const d = new Date(p.paid_at);
+        const monthKey = d.toLocaleString("default", { month: "short", year: "numeric" });
+        monthlyMap[monthKey] = (monthlyMap[monthKey] || 0) + Number(p.amount || 0);
       });
 
     const monthlyRevenue = Object.entries(monthlyMap).map(([month, amount]) => ({
       month,
       amount,
     }));
+
+    // Real Recent Events (Enquiries created, payments received)
+    const recentEvents: any[] = [];
+
+    enquiries.slice(0, 4).forEach((e) => {
+      recentEvents.push({
+        id: `enq-${e.id}`,
+        type: "enquiry" as const,
+        title: `Enquiry Intake: ${e.couple_name}`,
+        description: `${e.package} • ${e.city}`,
+        amount: Number(e.budget || 0),
+        timestamp: e.created_at,
+      });
+    });
+
+    payments
+      .filter((p) => p.paid_at)
+      .slice(0, 4)
+      .forEach((p) => {
+        recentEvents.push({
+          id: `pay-${p.id}`,
+          type: "payment" as const,
+          title: `Milestone Received: ${p.milestone}`,
+          description: `Verified by treasury`,
+          amount: Number(p.amount || 0),
+          timestamp: p.paid_at,
+        });
+      });
+
+    recentEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const topRecentEvents = recentEvents.slice(0, 5);
 
     // Upcoming Weddings (Next 6)
     const upcomingWeddings = weddings.slice(0, 6);
@@ -137,6 +165,7 @@ export async function fetchOverviewMetrics(): Promise<{
         monthlyRevenue,
         pipelineStages,
         upcomingWeddings,
+        recentEvents: topRecentEvents,
       },
     };
   } catch (err: any) {

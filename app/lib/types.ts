@@ -220,6 +220,15 @@ export interface TeamMember {
   is_demo: boolean;
 }
 
+export interface RecentEvent {
+  id: string;
+  type: "enquiry" | "payment" | "award";
+  title: string;
+  description: string;
+  amount?: number;
+  timestamp: string;
+}
+
 export interface OverviewMetrics {
   activeWeddingsCount: number;
   newEnquiriesCount: number;
@@ -231,6 +240,7 @@ export interface OverviewMetrics {
   monthlyRevenue: { month: string; amount: number }[];
   pipelineStages: { stage: Stage; count: number; value: number }[];
   upcomingWeddings: (Wedding & { couple_names?: string })[];
+  recentEvents?: RecentEvent[];
 }
 
 export interface ScheduleItem {

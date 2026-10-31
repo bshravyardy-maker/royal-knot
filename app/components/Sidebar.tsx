@@ -35,8 +35,8 @@ export const navigationItems = [
   { name: "Guest Management", href: "/guests", icon: Users, isImplemented: false },
   { name: "Day-of Command Center", href: "/command-center", icon: Compass, isImplemented: true },
   { name: "Contracts", href: "/contracts", icon: FileSignature, isImplemented: false },
-  { name: "Payments & Expenses", href: "/payments", icon: CreditCard, isImplemented: false },
-  { name: "Analytics & Reports", href: "/analytics", icon: BarChart3, isImplemented: false },
+  { name: "Payments & Expenses", href: "/payments", icon: CreditCard, isImplemented: true },
+  { name: "Analytics & Reports", href: "/analytics", icon: BarChart3, isImplemented: true },
   { name: "Settings", href: "/settings", icon: Settings, isImplemented: false },
 ];
 

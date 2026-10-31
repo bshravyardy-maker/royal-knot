@@ -58,6 +58,8 @@ async function runSeed() {
   // 1. Idempotency: Clean up demo rows in reverse foreign-key order
   console.log("\n🧹 Cleaning up existing demo data (is_demo = true)...");
   const cleanOrder = [
+    "share_tokens",
+    "time_logs",
     "incidents",
     "schedule_items",
     "expenses",
@@ -873,7 +875,58 @@ async function runSeed() {
 
   await execOrDie("incidents", "insert incidents", supabase.from("incidents").insert(incidentData));
 
-  // 10. Verification & Row Counts Summary
+  // 10. Time Logs & Share Tokens (Phase 6 Founder Analytics)
+  console.log("• Seeding Time Logs for every demo wedding & Executive Share Token...");
+  const timeLogsToInsert: any[] = [];
+  createdWeddings.forEach((w: any, idx: number) => {
+    timeLogsToInsert.push(
+      {
+        wedding_id: w.id,
+        member_id: teamGayatri?.id || createdTeam[0].id,
+        hours: 45.0,
+        hourly_cost: 2500,
+        is_demo: true,
+      },
+      {
+        wedding_id: w.id,
+        member_id: teamRaghavendra?.id || createdTeam[1].id,
+        hours: 60.0,
+        hourly_cost: 1800,
+        is_demo: true,
+      },
+      {
+        wedding_id: w.id,
+        member_id: teamAnanya?.id || createdTeam[2].id,
+        hours: 35.0,
+        hourly_cost: 1500,
+        is_demo: true,
+      }
+    );
+
+    if (idx === 2) {
+      timeLogsToInsert.push({
+        wedding_id: w.id,
+        member_id: teamRaghavendra?.id || createdTeam[1].id,
+        hours: 120.0,
+        hourly_cost: 2200,
+        is_demo: true,
+      });
+    }
+  });
+
+  await execOrDie("time_logs", "insert time_logs", supabase.from("time_logs").insert(timeLogsToInsert));
+
+  const shareTokensData = [
+    {
+      token: "demo-executive-board",
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      revoked: false,
+      is_demo: true,
+    },
+  ];
+  await execOrDie("share_tokens", "insert share_tokens", supabase.from("share_tokens").insert(shareTokensData));
+
+  // 11. Verification & Row Counts Summary
   console.log("\n=======================================================");
   console.log("📊 THE ROYAL KNOT - SEED VERIFICATION SUMMARY");
   console.log("=======================================================");
@@ -890,6 +943,8 @@ async function runSeed() {
     "incidents",
     "client_payments",
     "expenses",
+    "time_logs",
+    "share_tokens",
   ];
 
   for (const table of summaryTables) {

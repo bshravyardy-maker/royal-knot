@@ -14,6 +14,7 @@ import {
   Database,
   Building,
   FileSpreadsheet,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { fetchOverviewMetrics } from "@/lib/overview";
@@ -278,6 +279,62 @@ export default async function OverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Real Recent Operations Activity Feed */}
+      {metrics.recentEvents && metrics.recentEvents.length > 0 && (
+        <div className="royal-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-serif font-bold text-navy flex items-center space-x-2">
+                <Clock className="w-5 h-5 text-gold" />
+                <span>Live Palatial Operations Feed</span>
+              </h3>
+              <p className="text-xs text-navy/60">
+                Real-time verified operational events: client payments received, new enquiries, and contracts
+              </p>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              Live Stream
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {metrics.recentEvents.map((evt) => (
+              <div
+                key={evt.id}
+                className="p-3.5 rounded-xl border border-[#C6A46A]/20 bg-ivory/40 flex items-start space-x-3 text-xs"
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    evt.type === "payment"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-gold/20 text-gold-dark"
+                  }`}
+                >
+                  {evt.type === "payment" ? <Coins className="w-4 h-4" /> : <Inbox className="w-4 h-4" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-navy truncate">{evt.title}</div>
+                  <div className="text-[11px] text-gray-500 truncate">{evt.description}</div>
+                  <div className="flex items-center justify-between mt-1 text-[10px]">
+                    <span className="text-gray-400 font-mono">
+                      {new Date(evt.timestamp).toLocaleDateString("en-IN", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    {evt.amount && evt.amount > 0 && (
+                      <span className="font-bold text-navy font-mono">{formatINR(evt.amount)}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Weddings List */}
       <div className="royal-card p-6">
