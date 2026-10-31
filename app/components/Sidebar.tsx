@@ -1,0 +1,143 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Inbox,
+  Crown,
+  Store,
+  FileSpreadsheet,
+  CheckSquare,
+  Users,
+  Compass,
+  FileSignature,
+  CreditCard,
+  BarChart3,
+  Settings,
+  X,
+  Sparkles,
+} from "lucide-react";
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const navigationItems = [
+  { name: "Overview", href: "/", icon: LayoutDashboard, isImplemented: true },
+  { name: "Enquiries", href: "/enquiries", icon: Inbox, isImplemented: true },
+  { name: "Weddings", href: "/weddings", icon: Crown, isImplemented: true },
+  { name: "Vendors", href: "/vendors", icon: Store, isImplemented: true },
+  { name: "Vendor Quotes", href: "/vendor-quotes", icon: FileSpreadsheet, isImplemented: false },
+  { name: "Wedding Tasks", href: "/wedding-tasks", icon: CheckSquare, isImplemented: false },
+  { name: "Guest Management", href: "/guests", icon: Users, isImplemented: false },
+  { name: "Day-of Command Center", href: "/command-center", icon: Compass, isImplemented: false },
+  { name: "Contracts", href: "/contracts", icon: FileSignature, isImplemented: false },
+  { name: "Payments & Expenses", href: "/payments", icon: CreditCard, isImplemented: false },
+  { name: "Analytics & Reports", href: "/analytics", icon: BarChart3, isImplemented: false },
+  { name: "Settings", href: "/settings", icon: Settings, isImplemented: false },
+];
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const pathname = usePathname();
+
+  return (
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-navy-dark/80 backdrop-blur-sm lg:hidden transition-opacity"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <aside
+        className={`fixed top-0 bottom-0 left-0 z-40 w-72 bg-navy text-ivory flex flex-col border-r border-[#C6A46A]/20 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="h-20 px-6 flex items-center justify-between border-b border-[#C6A46A]/20 bg-navy-dark/60">
+          <Link href="/" className="flex items-center space-x-3 group" onClick={onClose}>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C6A46A] to-[#8C7142] flex items-center justify-center text-navy shadow-gold group-hover:scale-105 transition-transform">
+              <Crown className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <span className="block font-serif text-lg font-bold tracking-widest text-[#DFC698]">
+                THE ROYAL KNOT
+              </span>
+              <span className="block text-[10px] uppercase tracking-widest text-ivory/60 font-sans">
+                Jaipur • Udaipur
+              </span>
+            </div>
+          </Link>
+          <button
+            onClick={onClose}
+            className="lg:hidden text-ivory/60 hover:text-white p-1 rounded-md"
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Navigation Routes */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {navigationItems.map((item) => {
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={onClose}
+                className={`group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium tracking-wide transition-all ${
+                  isActive
+                    ? "bg-[#C6A46A] text-navy font-semibold shadow-gold"
+                    : "text-ivory/80 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <div className="flex items-center space-x-3 min-w-0">
+                  <Icon
+                    className={`w-4 h-4 flex-shrink-0 transition-colors ${
+                      isActive ? "text-navy" : "text-[#C6A46A] group-hover:text-gold-light"
+                    }`}
+                  />
+                  <span className="truncate">{item.name}</span>
+                </div>
+                {!item.isImplemented && (
+                  <span
+                    className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-sans tracking-wider ${
+                      isActive
+                        ? "bg-navy/20 text-navy font-semibold"
+                        : "bg-white/10 text-ivory/50"
+                    }`}
+                  >
+                    Soon
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Agency Footer Status */}
+        <div className="p-4 border-t border-[#C6A46A]/20 bg-navy-dark/40">
+          <div className="p-3 rounded-xl bg-navy/80 border border-[#C6A46A]/20 flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="text-xs min-w-0">
+              <p className="font-semibold text-white truncate">Royal Concierge 2026</p>
+              <p className="text-[11px] text-[#DFC698]/80 truncate">25 Palatial Weddings</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
