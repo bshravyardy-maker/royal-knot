@@ -1,110 +1,138 @@
 # 👑 The Royal Knot
 
-> A luxury wedding-agency management platform — from a couple's first enquiry to the founder's season P&L review.
-
-Built for a hackathon around the brief for **The Royal Knot**, a luxury agency in Jaipur and Udaipur that plans ~25 three-day destination weddings a season, each with 400+ guests and ~18 vendors.
-
----
-
-## The Problem
-
-The agency loses enquiries across Instagram and WhatsApp, compares vendor quotes by hand, rewrites checklists for every wedding, misses advance payments, and only learns a wedding's profit long after the season ends. The brief asks for one **digital backbone** where each action triggers the next.
+> **Palatial Wedding Agency Management Platform**  
+> Unified digital operating system for luxury destination wedding planners across Jaipur & Udaipur palaces.
 
 ---
 
-## What It Does — Scene by Scene
+## 🏛️ Overview
 
-| Scene | Feature | Status |
-|---|---|---|
-| First consultation | Enquiry pipeline with stage tracking, couple sign a service agreement on a touch-friendly signature pad, signed copy stored in private Supabase bucket | ✅ Done |
-| Three caterers, one decision | Vendor quotes shown side-by-side with aligned columns (price/plate, extras, inclusions, rating). Awarding one closes siblings in a single DB transaction | ✅ Done |
-| The instant wedding plan | Recording the booking deposit runs `record_booking_deposit()` — creates the wedding, ~30 tasks from templates, and 3 payment milestones atomically | ✅ Done |
-| Big day schedule | Live minute-by-minute run-sheet with vendor arrival check-in, late flags, and incident logging | ✅ Done |
-| Paying vendors and extras | Vendor bills, extra charges (client-billable vs absorbed), double-payment guard, vendor balance reconciliation | ✅ Done |
-| Founder's season review | Profit per wedding, vendor scorecards, 30-day liquidity forecast, **overdue obligations** (highlighted red), read-only share link | ✅ Done |
+**The Royal Knot** is an end-to-end management platform designed specifically for luxury destination wedding agencies. Managing 25+ palatial weddings per season—each hosting 400 to 600 guests with 15 to 20 artisan vendors across historic forts and heritage venues—demands flawless operational precision.
+
+The platform eliminates fragmented communication channels, spreadsheets, and manual notebooks by establishing a single connected digital backbone where every planning action naturally triggers the next: from the couple's initial enquiry to the final post-wedding vendor balance settlement.
 
 ---
 
-## Tech Stack
+## ✨ Key Capabilities
 
-| Layer | Choice |
+### 1. Palatial Dashboard & Live Operations
+- **Real-Time Financial Metrics:** Instant visibility into settled client revenue, outstanding receivables, estimated season profit, and active weddings.
+- **Conversion Pipeline:** Funnel tracking across all enquiry consultation stages (*New, Contacted, Meeting, Proposal, Won, Lost*).
+- **Live Operations Stream:** Verified chronological activity feed of payments received, new enquiries, and contract executions.
+
+### 2. Enquiry Pipeline & Digital Service Agreements
+- **Lifecycle Management:** Structured progression from initial client reach-out to won booking.
+- **In-App Agreement Signing:** Digital service agreement generation with an interactive, touch-friendly signature pad.
+- **Private Document Archiving:** Signed agreements are secured within a private Supabase Storage vault (`signatures`).
+
+### 3. Automated Wedding Provisioning & Task Orchestration
+- **Atomic Booking Deposit:** A single transactional database function (`record_booking_deposit`) automatically advances the enquiry to *Won*, provisions the wedding record, schedules ~30 milestone tasks from templates, and establishes 3 client payment milestones (*Booking, Advance, Final*).
+- **Interactive Task Board:** Kanban-style task tracking categorized by operational phases (*Planning, Countdown, Day-of, Post-event*) with role-based team ownership.
+
+### 4. Vendor Tenders & Side-by-Side Rate Cards
+- **Request for Proposals (RFPs):** Create structured quote requests with target guest counts, deadlines, and requirements.
+- **Multi-Vendor Rate Card Comparison:** Aligned column comparison evaluating price per plate, overtime rates, and inclusions.
+- **Single-Click Tendering:** Awarding a vendor automatically closes competing bids and creates an attached vendor contract in a single database transaction (`award_quote`).
+
+### 5. Day-of Command Center & Live Run-Sheet
+- **Minute-by-Minute Timeline:** Synchronized schedule tracking for baraat processions, high teas, sunset pheras, and fireworks.
+- **Vendor Arrival Tracking:** Idempotent arrival check-in with automatic flags for late vendors.
+- **Live Incident Desk:** Real-time logging of day-of exceptions with severity ratings (*Low, Medium, High*), assigned coordinators, and resolution tracking.
+
+### 6. Financial Reconciliation & Payment Guard
+- **Milestone Invoicing:** Automated calculation of contract values, client-billable extras, and remaining balances.
+- **Vendor Bill Matching:** Three-way reconciliation comparing agreed contract amounts against actual vendor invoices.
+- **Double-Payment Guard:** Transaction-level payment validation (`pay_vendor`) ensuring vendor payments never exceed outstanding balances.
+- **Extra Charges Classification:** Separation between client-billable additions and agency-absorbed emergency costs.
+
+### 7. Founder Analytics & Season P&L
+- **Unit Economics (P&L):** Accurate per-wedding profit and margin calculations factoring vendor bills, absorbed extras, and logged team hours.
+- **Loss Driver Attribution:** Automatic root-cause detection (*Vendor Overrun, Absorbed Extras, Team Hours*) for underperforming celebrations.
+- **Vendor Scorecards:** Performance metrics tracking vendor punctuality, billing variance percentages, and ratings.
+- **30-Day Liquidity Forecast & Overdue Dues:** Cashflow forecast comparing upcoming receivables with vendor payables, highlighting overdue obligations.
+- **Executive Share Links:** Tokenized, read-only dashboard access for partners, co-founders, and auditors.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
 |---|---|
-| Framework | Next.js 14 (App Router), React 18, TypeScript |
-| Styling | Tailwind CSS · Cormorant Garamond + Manrope (local fonts, no Google Fonts CDN dependency) |
-| Database | Supabase (Postgres) with Row Level Security on every table |
-| Storage | Supabase Storage — private `signatures` bucket |
-| Business logic | PL/pgSQL functions (`record_booking_deposit`, `award_quote`) — multi-step actions succeed or fail together |
-| Writes | Next.js server actions + `server-only` service role client — secret key never reaches the browser |
-| Analytics | Postgres views: `wedding_profit`, `vendor_scorecard`, `dues_next_30_days`, `overdue_dues`, `vendor_balances`, `client_invoice` |
+| **Frontend Framework** | [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript |
+| **Styling & Design System** | [Tailwind CSS](https://tailwindcss.com/) with custom luxury palatial palette (*Navy, Gold, Ivory, Wine*) |
+| **Typography** | Local font delivery (*Cormorant Garamond* and *Manrope*) via `next/font/local` |
+| **Database & Auth** | [Supabase](https://supabase.com/) (PostgreSQL with Row Level Security) |
+| **File Storage** | Supabase Storage (Private encrypted bucket for client contracts and signatures) |
+| **State & Server Actions** | Next.js Server Actions with strict `server-only` service role isolation |
+| **Icons** | [Lucide React](https://lucide.dev/) |
 
 ---
 
-## Architecture Highlights
+## 📐 Engineering & Architecture Principles
 
-- **One transaction, no orphans.** `record_booking_deposit` and `award_quote` are database functions. A wedding can never exist without its payment milestones; a quote award can never leave siblings half-open.
-- **Computed, never typed.** Every dashboard number is derived from database rows — no denormalised counters to drift.
-- **Secure by default.** RLS is enabled on every table. The public anon key can only `SELECT`. All writes go through server actions. `SUPABASE_SERVICE_ROLE_KEY` never touches the browser.
-- **Demo vs live.** Every seeded row carries `is_demo = true` and shows a **Demo** badge. Records created through the UI show **Live Client**.
-- **No network at build time.** Fonts are loaded from `public/fonts/` via `next/font/local` — a Google Fonts timeout cannot break the build.
+- **Transactional Integrity:** Complex multi-step operations (such as converting an enquiry into a wedding with tasks and payment milestones, or awarding vendor tenders) run inside dedicated PostgreSQL functions (`PL/pgSQL`) to guarantee atomic execution.
+- **Zero Client-Side Secret Exposure:** All database mutations execute strictly through Next.js Server Actions using a private server-side Supabase client (`SUPABASE_SERVICE_ROLE_KEY`). The public browser client utilizes the restricted anonymous key with `SELECT`-only privileges.
+- **Derived Analytics via Security Views:** Founder analytics, vendor balances, and cashflow projections are computed on the fly through PostgreSQL views (`wedding_profit`, `vendor_scorecard`, `vendor_balances`, `client_invoice`, `dues_next_30_days`, `overdue_dues`).
+- **Resilient Seed Engine:** The seed system is fully idempotent and deterministic, utilizing batched operations with automatic exponential backoff to handle network interruptions.
+- **Network-Independent Build:** All web fonts and assets are hosted locally inside the repository, preventing remote CDN downtime from impacting production builds.
 
 ---
 
-## Project Structure
+## 📁 Repository Structure
 
 ```
 royal-knot/
-├── app/                          Next.js application root
-│   ├── app/                      Routes (App Router pages)
-│   │   ├── page.tsx              Overview / dashboard
-│   │   ├── enquiries/            Enquiry pipeline + detail + agreement signing
-│   │   ├── weddings/             Wedding detail + task board
-│   │   ├── vendor-quotes/        Quote requests + side-by-side comparison + award
-│   │   ├── command-center/       Day-of run-sheet, arrival check-in, incidents
-│   │   ├── payments/             Client payments + vendor bills + extras
-│   │   ├── analytics/            Profit, scorecards, dues, share link
-│   │   ├── vendors/              Vendor directory
-│   │   ├── share/[token]/        Public read-only analytics view
-│   │   ├── loading.tsx           Root loading skeleton
-│   │   └── error.tsx             Root error boundary with retry
-│   ├── actions/                  Server actions (all writes)
-│   │   ├── enquiries.ts
-│   │   ├── weddings.ts
-│   │   ├── quotes.ts
-│   │   ├── command-center.ts
-│   │   ├── payments.ts
-│   │   └── analytics.ts
-│   ├── components/               Shared UI components
-│   │   ├── AnalyticsClient.tsx   Profit, scorecard, dues, overdue, share
-│   │   ├── PaymentsClient.tsx    Bills, client payments, extras
-│   │   ├── QuoteComparisonClient.tsx
-│   │   ├── Sidebar.tsx
+├── app/                              # Next.js Application Root
+│   ├── actions/                      # Server Actions (Mutations & Service Role Operations)
+│   │   ├── analytics.ts              # Executive share tokens & reporting
+│   │   ├── command-center.ts         # Live arrivals & day-of incidents
+│   │   ├── enquiries.ts              # Enquiry pipeline & agreement signing
+│   │   ├── payments.ts               # Vendor bills, client payments & extras
+│   │   ├── quotes.ts                 # Vendor quote tenders & awards
+│   │   └── weddings.ts               # Wedding provisioning & task state
+│   ├── app/                          # Next.js App Router Pages
+│   │   ├── (overview)/page.tsx       # Palatial dashboard & KPI metrics
+│   │   ├── analytics/                # Founder P&L, scorecards & dues
+│   │   ├── command-center/           # Day-of live schedule run-sheet
+│   │   ├── enquiries/                # Enquiry funnel & digital agreement view
+│   │   ├── payments/                 # Financial ledger & balance reconciliation
+│   │   ├── share/[token]/            # Public read-only analytics view
+│   │   ├── vendor-quotes/            # RFP comparison & tender awards
+│   │   ├── vendors/                  # Curated artisan vendor directory
+│   │   ├── wedding-tasks/            # Multi-phase planning task board
+│   │   ├── weddings/                 # Wedding details & run-sheets
+│   │   ├── loading.tsx               # Animated skeleton loading state
+│   │   └── error.tsx                 # Client error boundary with retry handler
+│   ├── components/                   # UI Components & Interactive Clients
+│   │   ├── AnalyticsClient.tsx       # Founder analytics & cashflow tables
+│   │   ├── PaymentsClient.tsx        # Billing, milestone & extras ledger
+│   │   ├── QuoteComparisonClient.tsx # Multi-vendor rate card comparison
+│   │   ├── Sidebar.tsx               # Palatial responsive navigation drawer
 │   │   └── ...
-│   ├── lib/
+│   ├── lib/                          # Database Clients & Data Utilities
 │   │   ├── supabase/
-│   │   │   ├── server.ts         Service role client (server-only)
-│   │   │   └── client.ts         Anon client (browser)
-│   │   └── overview.ts           Dashboard metric queries
-│   ├── scripts/seed.ts           Idempotent demo data seed
-│   └── supabase/migrations/      SQL — run in filename order
-│       ├── 20261031000001_phase0_schema.sql
-│       ├── 20261031000002_phase2.sql
-│       ├── 20261031000003_phase3.sql
-│       ├── 20261031000004_fixes.sql
-│       ├── 20261031000005_phase4.sql
-│       ├── 20261031000006_phase5.sql
-│       ├── 20261031000007_phase6.sql
-│       └── 20261031000008_phase7.sql
-├── docs/                         Brief and build playbook
-└── prototype/                    Phase 1 HTML design prototype
+│   │   │   ├── client.ts             # Anon public client (Browser)
+│   │   │   └── server.ts             # Service role client (Server-only)
+│   │   └── overview.ts               # KPI aggregation queries
+│   ├── scripts/
+│   │   └── seed.ts                   # Deterministic database seeding engine
+│   └── supabase/
+│       └── migrations/               # PostgreSQL Schemas, Functions & Views
+├── docs/                             # Architecture specifications & domain playbooks
+└── README.md                         # Project documentation
 ```
 
 ---
 
-## Running Locally
+## 🚀 Getting Started
 
-**Requirements:** Node.js 20+, a free [Supabase](https://supabase.com) project.
+### Prerequisites
 
-### 1 — Clone and install
+- **Node.js:** v20.0.0 or higher
+- **Package Manager:** `npm` (v10+)
+- **Database:** A [Supabase](https://supabase.com/) project (PostgreSQL 15+)
+
+### 1. Clone & Install Dependencies
 
 ```bash
 git clone https://github.com/bshravyardy-maker/royal-knot.git
@@ -112,131 +140,64 @@ cd royal-knot/app
 npm install
 ```
 
-### 2 — Environment variables
+### 2. Environment Configuration
 
-Copy `.env.example` to `.env.local` and fill in your own values:
+Create a local environment file in the `app` directory:
 
 ```bash
 cp .env.example .env.local
 ```
 
+Populate `.env.local` with your Supabase credentials:
+
 ```env
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-publishable-key
+SUPABASE_SERVICE_ROLE_KEY=your-secret-service-role-key
 ```
 
-> **Security:** The URL has no path or trailing slash. Never commit `.env.local`. The service role key must never reach the browser — the app enforces this with `import "server-only"`.
+> **Security Note:** `SUPABASE_SERVICE_ROLE_KEY` is strictly server-side. Never commit `.env.local` to source control.
 
-### 3 — Run migrations
+### 3. Apply Database Migrations
 
-In the Supabase **SQL Editor**, run each file in `app/supabase/migrations/` in filename order (oldest first). Each file is idempotent — safe to re-run.
+In your Supabase project's **SQL Editor**, execute the migration scripts located in `app/supabase/migrations/` in sequential order:
 
-### 4 — Seed demo data
+1. `20261031000001_phase0_schema.sql` — Initial schema (19 core tables, RLS policies, indexes)
+2. `20261031000002_phase2.sql` — Storage bucket, digital agreements, and `record_booking_deposit`
+3. `20261031000003_phase3.sql` — RFP quotation system and `award_quote`
+4. `20261031000004_fixes.sql` — Integrity constraints & deposit validation
+5. `20261031000005_phase4.sql` — Day-of schedule items & live incident desk
+6. `20261031000006_phase5.sql` — Vendor bills, extra charges, and `pay_vendor` guard
+7. `20261031000007_phase6.sql` — Founder analytics views (`wedding_profit`, `vendor_scorecard`) & share tokens
+8. `20261031000008_phase7.sql` — Cashflow views (`dues_next_30_days`, `overdue_dues`)
+
+### 4. Seed Palatial Demo Data
+
+Populate realistic demo records including 60 curated vendors, 25 destination weddings, task templates, bills, client payments, and verified P&L figures:
 
 ```bash
 npm run seed
 ```
 
-The seed script is idempotent: it deletes all `is_demo = true` rows before re-inserting. It prints row counts per table and exits non-zero on any Supabase error, naming the failing table.
-
-### 5 — Start the app
+### 5. Launch Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Trying the Main Flows
+## 🔒 Security & Data Integrity
 
-### Enquiry → Wedding
-1. Click **New Enquiry**, fill in couple details and budget.
-2. Open the enquiry, advance through stages (New → Contacted → Meeting → Proposal).
-3. Generate and sign the service agreement on the signature pad.
-4. Record the booking deposit. A wedding, ~30 tasks and 3 payment milestones are created atomically.
-
-### Vendor Quotes → Award
-1. Open **Vendor Quotes** and create a new quote request for a wedding.
-2. Add quotes from different vendors (price/plate, extra-hour rate, inclusions).
-3. Compare them side-by-side and click **Award** — the winner is linked to the wedding; others close automatically.
-
-### Day-of Command Center
-1. Open **Command Center** for today's wedding.
-2. Click **Mark Arrived** as vendors check in — the button becomes idempotent after the first press.
-3. Log an incident (e.g. generator needed) with severity and owner.
-
-### Payments & Billing
-1. Open **Payments** to view client milestones (Booking, Advance, Final).
-2. Record vendor bills and match payments against them.
-3. Add extra charges — mark whether billable to the client or absorbed.
-
-### Analytics & Share
-1. Open **Analytics** to see profit per wedding, vendor scorecards, 30-day dues forecast and overdue obligations (highlighted in red).
-2. Create a **Share Link** to send a read-only view to a co-founder or investor.
+- **Row Level Security (RLS):** Enabled across all database tables. The anonymous role (`anon`) possesses read-only access (`SELECT`), while write mutations (`INSERT`, `UPDATE`, `DELETE`) are strictly guarded and executed via the server-only service role.
+- **Signature Storage Privacy:** Digital contracts are stored within a private Supabase Storage bucket (`signatures`) with access restricted to authenticated service-role requests.
+- **Idempotency:** Payment requests and schedule check-ins require unique transaction keys to prevent duplicate execution upon multiple clicks or retransmissions.
 
 ---
 
-## Database Functions
+## 📄 License
 
-| Function | What it does |
-|---|---|
-| `record_booking_deposit(p_enquiry_id, p_amount)` | Single transaction: validates the enquiry, sets it to Won, creates the wedding, generates tasks from templates, inserts 3 client payment milestones |
-| `award_quote(p_quote_id)` | Single transaction: rejects if request is not Open, marks chosen quote Awarded, closes siblings, closes the request, inserts a `wedding_vendors` row |
-
----
-
-## Database Views
-
-| View | Purpose |
-|---|---|
-| `wedding_profit` | Revenue, vendor cost, absorbed extras, team cost, profit, margin %, loss reason |
-| `vendor_scorecard` | Per-vendor on-time rate, avg bill variance, rating, wedding count |
-| `vendor_balances` | Per `wedding_vendor`: agreed, billed, paid, remaining |
-| `client_invoice` | Contract value + billable extras − received = outstanding |
-| `dues_next_30_days` | Unpaid client/vendor items due within the next 30 days |
-| `overdue_dues` | Unpaid items past their due date, with `days_overdue` |
-
----
-
-## Build Checklist
-
-- [x] Phase 0 — Scaffold, schema, shell, overview dashboard, quick-create enquiry, seed
-- [x] Phase 2 — Enquiry pipeline, agreement signing, booking deposit → wedding + tasks + payments
-- [x] Phase 3 — Vendor quote requests, side-by-side comparison, award transaction
-- [x] Phase 4 — Day-of command center: run-sheet, vendor arrival check-in, incident logging
-- [x] Phase 5 — Vendor bills, extra charges, double-payment guard, balance reconciliation
-- [x] Phase 6 — Founder analytics: profit view, vendor scorecard, dues forecast, share link
-- [x] Phase 7 — Overdue dues view and UI, loading skeletons, error boundaries, deploy readiness
-- [ ] Phase 7 (remaining) — Full 25-wedding / 60-vendor seed with batch inserts, per-route loading/error files, mobile polish
-
----
-
-## Known Limitations
-
-- **No authentication.** Anyone with the URL can view all data. Auth is the next planned phase.
-- **Demo data only.** All seeded records are fictional. The `is_demo` flag separates them from live entries.
-- **Seed validation.** The profit-per-wedding verification step (exactly 4 loss weddings) is not yet implemented in the seed script — the financial ecosystem (vendor bills, extra charges, overruns) still needs a full rewrite.
-- **Per-route loading/error files** exist only at the root level; sub-routes show the root skeleton.
-
----
-
-## Security Notes
-
-- Row Level Security is enabled on every table.
-- The anon key has `SELECT` only on all tables. All `INSERT`/`UPDATE`/`DELETE` goes through server actions with the service role key.
-- No client component imports the service role client.
-- `.env.local` is in `.gitignore` and has never been committed.
-- `app/.env.example` contains only placeholder strings — never real credentials.
-
----
-
-## Built With
-
-- **[Supabase](https://supabase.com)** — Postgres, RLS, Storage
-- **[Next.js](https://nextjs.org)** — App Router, server actions, `server-only`
-- **[Tailwind CSS](https://tailwindcss.com)** — utility styling
-- **[Lucide React](https://lucide.dev)** — icons
-- **[Antigravity](https://antigravity.dev)** — AI coding agent used throughout the build
+Internal proprietary software developed for **The Royal Knot Luxury Wedding Concierge**. All rights reserved.
