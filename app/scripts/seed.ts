@@ -31,7 +31,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error("❌ Error: Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in app/.env.local");
+  console.error("❌ Fatal Error: Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
   process.exit(1);
 }
 
@@ -39,11 +39,57 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-async function runSeed() {
-  console.log("👑 Seeding THE ROYAL KNOT luxury wedding management platform...");
+// Helper that executes an operation and immediately terminates with non-zero exit on error
+async function execOrDie<T = any>(tableName: string, operationDesc: string, promise: any): Promise<T> {
+  const { data, error } = await promise;
+  if (error) {
+    console.error(`\n❌ SUPABASE ERROR in table [${tableName}] during [${operationDesc}]:`);
+    console.error(`   Message: ${error.message}`);
+    console.error(`   Details: ${error.details || "N/A"}`);
+    console.error(`   Hint: ${error.hint || "N/A"}`);
+    process.exit(1);
+  }
+  return data as T;
+}
 
-  // 1. Packages
-  console.log("• Seeding Packages...");
+async function runSeed() {
+  console.log("👑 Initializing idempotent seed for THE ROYAL KNOT...");
+
+  // 1. Idempotency: Clean up demo rows in reverse foreign-key order
+  console.log("\n🧹 Cleaning up existing demo data (is_demo = true)...");
+  const cleanOrder = [
+    "incidents",
+    "schedule_items",
+    "expenses",
+    "vendor_payments",
+    "vendor_bills",
+    "client_payments",
+    "contracts",
+    "guests",
+    "wedding_tasks",
+    "wedding_vendors",
+    "vendor_quotes",
+    "quote_requests",
+    "weddings",
+    "enquiries",
+    "couples",
+    "task_templates",
+    "vendors",
+    "team_members",
+    "packages",
+  ];
+
+  for (const table of cleanOrder) {
+    await execOrDie(
+      table,
+      "delete demo rows",
+      supabase.from(table).delete().eq("is_demo", true)
+    );
+  }
+  console.log("   ✓ Cleaned existing demo rows safely.");
+
+  // 2. Packages
+  console.log("\n• Seeding Packages...");
   const packagesData = [
     {
       name: "Full-Service Royal Wedding",
@@ -60,17 +106,9 @@ async function runSeed() {
       is_demo: true,
     },
   ];
+  const createdPackages = await execOrDie("packages", "insert packages", supabase.from("packages").insert(packagesData).select());
 
-  const { data: createdPackages, error: pkgErr } = await supabase
-    .from("packages")
-    .upsert(packagesData, { onConflict: "name" })
-    .select();
-
-  if (pkgErr) {
-    console.warn("Package insert warning:", pkgErr.message);
-  }
-
-  // 2. Team Members
+  // 3. Team Members
   console.log("• Seeding Team Members...");
   const teamData = [
     {
@@ -95,20 +133,10 @@ async function runSeed() {
       is_demo: true,
     },
   ];
+  const createdTeam = await execOrDie("team_members", "insert team_members", supabase.from("team_members").insert(teamData).select());
 
-  const { data: createdTeam, error: teamErr } = await supabase
-    .from("team_members")
-    .upsert(teamData, { onConflict: "email" })
-    .select();
-
-  if (teamErr) {
-    console.warn("Team insert warning:", teamErr.message);
-  }
-
-  const leadPlannerId = createdTeam?.[0]?.id || null;
-
-  // 3. 10 Curated Vendors
-  console.log("• Seeding 10 Luxury Vendors...");
+  // 4. Vendors (10 luxury partners)
+  console.log("• Seeding 10 Curated Artisan Vendors...");
   const vendorsData = [
     {
       name: "Rajputana Decor & Floral Crafts",
@@ -221,18 +249,52 @@ async function runSeed() {
       is_demo: true,
     },
   ];
+  await execOrDie("vendors", "insert vendors", supabase.from("vendors").insert(vendorsData));
 
-  const { data: createdVendors, error: vendorErr } = await supabase
-    .from("vendors")
-    .insert(vendorsData)
-    .select();
+  // 5. 30 Task Templates across 7 phases
+  console.log("• Seeding 30 Palatial Task Templates...");
+  const templatesData = [
+    { title: "Palace Venue Contract & Booking Deposit Confirmation", phase: "Venue", offset_days_from_wedding: -120, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Heritage Department Permits & Firecracker Clearances", phase: "Venue", offset_days_from_wedding: -90, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "On-site Technical Recce (Generators, Power & Lake Access)", phase: "Venue", offset_days_from_wedding: -60, default_role: "Head of Logistics", package: "All", is_demo: true },
 
-  if (vendorErr) {
-    console.warn("Vendors insert error:", vendorErr.message);
-  }
+    { title: "Mood Board & Imperial Rajputana Color Palette Finalization", phase: "Design", offset_days_from_wedding: -100, default_role: "Artisan Vendor Director", package: "All", is_demo: true },
+    { title: "3D Floral Mandap & Architectural Stage Blueprint Signoff", phase: "Design", offset_days_from_wedding: -75, default_role: "Artisan Vendor Director", package: "All", is_demo: true },
+    { title: "Royal Stationery, Gold Leaf Itineraries & Wax Seals Approval", phase: "Design", offset_days_from_wedding: -60, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Ambient Illumination & Palace Facade Mapping Layout", phase: "Design", offset_days_from_wedding: -45, default_role: "Head of Logistics", package: "All", is_demo: true },
 
-  // 4. 7 Enquiries across stages
-  console.log("• Seeding 7 Prospective Enquiries across stages...");
+    { title: "Master Royal Feast Tasting & Silver Thali Menu Signoff", phase: "Vendors", offset_days_from_wedding: -80, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Floral Artisan & Velvet Shamiana Vendor Contract Execution", phase: "Vendors", offset_days_from_wedding: -70, default_role: "Artisan Vendor Director", package: "All", is_demo: true },
+    { title: "Leica Portraiture & Drone Aerial Cinematography Briefing", phase: "Vendors", offset_days_from_wedding: -60, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Bridal Sojat Henna Artists & Poshak Draping Team Lock-in", phase: "Vendors", offset_days_from_wedding: -50, default_role: "Artisan Vendor Director", package: "All", is_demo: true },
+    { title: "Manganiyar Folk Ensemble & Sufi Qawwali Stage Technical Rider", phase: "Vendors", offset_days_from_wedding: -40, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Vintage Rolls Royce & Decorated Royal Baggi Reservation", phase: "Vendors", offset_days_from_wedding: -35, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "24k Gold Foil Mithai Hampers & Welcome Favors Dispatch Order", phase: "Vendors", offset_days_from_wedding: -30, default_role: "Lead Planner", package: "All", is_demo: true },
+
+    { title: "VVIP Royal Guest List & Protocol Hierarchy Finalization", phase: "Guests", offset_days_from_wedding: -90, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Digital Save-The-Dates & Palace Travel Concierge Portal Launch", phase: "Guests", offset_days_from_wedding: -75, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Formal Wedding Invocations & Palace Suite Allocations", phase: "Guests", offset_days_from_wedding: -45, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Airport Chauffeur Conveyance & Private Jet Manifest Sync", phase: "Guests", offset_days_from_wedding: -20, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Final Dietary Protocols, Jain Catering & RSVP Tally Lock", phase: "Guests", offset_days_from_wedding: -14, default_role: "Lead Planner", package: "All", is_demo: true },
+
+    { title: "Royal High Tea & Mehendi Sundowner Run-Sheet Rehearsal", phase: "Events", offset_days_from_wedding: -10, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Sangeet Stage Choreography & Sufi Mehfil Lighting Soundcheck", phase: "Events", offset_days_from_wedding: -7, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Haldi Yellow Blossom Floral Shower Logistics Alignment", phase: "Events", offset_days_from_wedding: -3, default_role: "Artisan Vendor Director", package: "All", is_demo: true },
+    { title: "Barat Grand Procession Route, Tuskers & Brass Band Alignment", phase: "Events", offset_days_from_wedding: -2, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Sunset Pheras Sacred Ritual Timing & Pandit Alignment", phase: "Events", offset_days_from_wedding: -1, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Grand Reception Royal Durbar Seating & Toast Timetable", phase: "Events", offset_days_from_wedding: 0, default_role: "Lead Planner", package: "All", is_demo: true },
+
+    { title: "Dawn Team Operational Briefing & Radiocomms Check", phase: "Day-of", offset_days_from_wedding: 0, default_role: "Lead Planner", package: "All", is_demo: true },
+    { title: "Vendor Influx Check-in & Fire Marshal Compliance Audit", phase: "Day-of", offset_days_from_wedding: 0, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Barat to Mandap Live Queueing & Bride Entry Fire-Torches", phase: "Day-of", offset_days_from_wedding: 0, default_role: "Head of Logistics", package: "All", is_demo: true },
+
+    { title: "Palace Suite Inventory Handover & Chauffeur Luggage Sweep", phase: "Post-event", offset_days_from_wedding: 1, default_role: "Head of Logistics", package: "All", is_demo: true },
+    { title: "Artisan Vendor Invoice Reconciliation & Final Settlements", phase: "Post-event", offset_days_from_wedding: 3, default_role: "Lead Planner", package: "All", is_demo: true },
+  ];
+  await execOrDie("task_templates", "insert task_templates", supabase.from("task_templates").insert(templatesData));
+
+  // 6. 7 Enquiries across stages
+  console.log("• Seeding 7 Prospective Enquiries...");
   const enquiriesData = [
     {
       couple_name: "Ranveer Rathore & Deepika Sen",
@@ -340,16 +402,9 @@ async function runSeed() {
       is_demo: true,
     },
   ];
+  await execOrDie("enquiries", "insert enquiries", supabase.from("enquiries").insert(enquiriesData));
 
-  const { error: enquiryErr } = await supabase
-    .from("enquiries")
-    .insert(enquiriesData);
-
-  if (enquiryErr) {
-    console.warn("Enquiry insert error:", enquiryErr.message);
-  }
-
-  // 5. 8 Palatial Weddings
+  // 7. 8 Palatial Weddings
   console.log("• Seeding 8 Palatial Weddings...");
   const weddingsData = [
     {
@@ -360,6 +415,7 @@ async function runSeed() {
       venue: "Rambagh Palace, Jaipur",
       guest_count: 450,
       total_budget: 7500000,
+      contract_value: 7500000,
       status: "Confirmed",
       theme: "Palace Romance & Royal Florals",
       notes: "3-day high society celebration with royal high tea and fireworks display.",
@@ -373,6 +429,7 @@ async function runSeed() {
       venue: "The Oberoi Udaivilas, Udaipur",
       guest_count: 500,
       total_budget: 11000000,
+      contract_value: 11000000,
       status: "Planning",
       theme: "Lakeside Sufi & Heritage Rajputana",
       notes: "Overwater pheras structure and private chartered boat transfers across Lake Pichola.",
@@ -386,6 +443,7 @@ async function runSeed() {
       venue: "Alsisar Mahal Heritage Haveli",
       guest_count: 380,
       total_budget: 4500000,
+      contract_value: 4500000,
       status: "Confirmed",
       theme: "Torchlit Mughal Courtyards",
       notes: "Authentic shekhawati fresco backdrops with candlelit evening mehfils.",
@@ -399,6 +457,7 @@ async function runSeed() {
       venue: "Jagmandir Island Palace, Udaipur",
       guest_count: 520,
       total_budget: 14000000,
+      contract_value: 14000000,
       status: "Confirmed",
       theme: "Golden Mughal Romance",
       notes: "Full island buyout with grand elephant welcome and floating fireworks show.",
@@ -412,6 +471,7 @@ async function runSeed() {
       venue: "Fairmont Jaipur Palace",
       guest_count: 600,
       total_budget: 8500000,
+      contract_value: 8500000,
       status: "Planning",
       theme: "Royal Rajputana Grandeur",
       notes: "Aravalli mountain views, traditional nagada drummers, and 100-dish feast.",
@@ -425,6 +485,7 @@ async function runSeed() {
       venue: "The Leela Palace, Udaipur",
       guest_count: 400,
       total_budget: 9500000,
+      contract_value: 9500000,
       status: "Confirmed",
       theme: "Ivory Lotus & Candlelit Domes",
       notes: "Sunset pheras overlooking the historic City Palace.",
@@ -438,6 +499,7 @@ async function runSeed() {
       venue: "Samode Palace, Jaipur",
       guest_count: 350,
       total_budget: 6000000,
+      contract_value: 6000000,
       status: "Planning",
       theme: "Sheesh Mahal Mirror Magic",
       notes: "Intimate heritage gathering in the 475-year-old hall of mirrors.",
@@ -451,224 +513,182 @@ async function runSeed() {
       venue: "Shiv Niwas Palace, Udaipur",
       guest_count: 480,
       total_budget: 12500000,
+      contract_value: 12500000,
       status: "In Progress",
       theme: "Imperial Mewar Durbar",
       notes: "Historical crescent courtyard setup with vintage Rolls Royce bridal entrance.",
       is_demo: true,
     },
   ];
+  const createdWeddings = await execOrDie("weddings", "insert weddings", supabase.from("weddings").insert(weddingsData).select());
 
-  const { data: createdWeddings, error: weddingErr } = await supabase
-    .from("weddings")
-    .insert(weddingsData)
-    .select();
+  // 8. Client Payments & Expenses
+  console.log("• Seeding 3-Stage Client Payments & Wedding Tasks...");
+  const paymentsToInsert: any[] = [];
+  const expensesToInsert: any[] = [];
+  const tasksToInsert: any[] = [];
 
-  if (weddingErr) {
-    console.warn("Weddings insert error:", weddingErr.message);
-  }
+  const defaultOwnerId = createdTeam[0]?.id;
 
-  // 6. Client Payments (Booking, Advance, Final)
-  console.log("• Seeding 3-Stage Client Payments...");
-  if (createdWeddings && createdWeddings.length > 0) {
-    const paymentsToInsert: any[] = [];
-    const expensesToInsert: any[] = [];
+  createdWeddings.forEach((w: any, idx: number) => {
+    const budget = Number(w.total_budget);
+    const bookingAmount = Math.round(budget * 0.25);
+    const advanceAmount = Math.round(budget * 0.50);
+    const finalAmount = budget - (bookingAmount + advanceAmount);
 
-    createdWeddings.forEach((w, idx) => {
-      const budget = Number(w.total_budget);
-      const bookingAmount = Math.round(budget * 0.25); // 25% on booking
-      const advanceAmount = Math.round(budget * 0.50); // 50% advance (~1 month prior)
-      const finalAmount = budget - (bookingAmount + advanceAmount); // 25% final
+    if (idx === 0) {
+      // Sharma & Singhania: Booking + Advance Paid
+      paymentsToInsert.push(
+        {
+          wedding_id: w.id,
+          milestone: "Booking",
+          amount: bookingAmount,
+          due_date: "2026-08-10",
+          paid_at: "2026-08-09T14:30:00Z",
+          payment_method: "NEFT / RTGS",
+          transaction_reference: "RTGS-RBIP90214801",
+          status: "Paid",
+          is_demo: true,
+        },
+        {
+          wedding_id: w.id,
+          milestone: "Advance",
+          amount: advanceAmount,
+          due_date: "2026-10-15",
+          paid_at: "2026-10-14T11:15:00Z",
+          payment_method: "NEFT / RTGS",
+          transaction_reference: "RTGS-HDFC19481023",
+          status: "Paid",
+          is_demo: true,
+        },
+        {
+          wedding_id: w.id,
+          milestone: "Final",
+          amount: finalAmount,
+          due_date: "2026-11-20",
+          status: "Pending",
+          is_demo: true,
+        }
+      );
+    } else {
+      paymentsToInsert.push(
+        {
+          wedding_id: w.id,
+          milestone: "Booking",
+          amount: bookingAmount,
+          due_date: "2026-09-15",
+          paid_at: idx % 2 === 0 ? "2026-09-15T09:20:00Z" : null,
+          status: idx % 2 === 0 ? "Paid" : "Pending",
+          is_demo: true,
+        },
+        {
+          wedding_id: w.id,
+          milestone: "Advance",
+          amount: advanceAmount,
+          due_date: "2026-11-18",
+          status: "Pending",
+          is_demo: true,
+        },
+        {
+          wedding_id: w.id,
+          milestone: "Final",
+          amount: finalAmount,
+          due_date: "2026-12-25",
+          status: "Pending",
+          is_demo: true,
+        }
+      );
+    }
 
-      // Wedding 0 (Sharma & Singhania): Booking and Advance Paid
-      if (idx === 0) {
-        paymentsToInsert.push(
-          {
-            wedding_id: w.id,
-            milestone: "Booking",
-            amount: bookingAmount,
-            due_date: "2026-08-10",
-            paid_at: "2026-08-09T14:30:00Z",
-            payment_method: "NEFT / RTGS",
-            transaction_reference: "RTGS-RBIP90214801",
-            status: "Paid",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Advance",
-            amount: advanceAmount,
-            due_date: "2026-10-15",
-            paid_at: "2026-10-14T11:15:00Z",
-            payment_method: "NEFT / RTGS",
-            transaction_reference: "RTGS-HDFC19481023",
-            status: "Paid",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Final",
-            amount: finalAmount,
-            due_date: "2026-11-20",
-            status: "Pending",
-            is_demo: true,
-          }
-        );
-      } else if (idx === 1) {
-        // Mewar Lakeside: Booking Paid, Advance Pending
-        paymentsToInsert.push(
-          {
-            wedding_id: w.id,
-            milestone: "Booking",
-            amount: bookingAmount,
-            due_date: "2026-09-01",
-            paid_at: "2026-09-02T10:00:00Z",
-            payment_method: "NEFT / RTGS",
-            transaction_reference: "RTGS-ICIC81920391",
-            status: "Paid",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Advance",
-            amount: advanceAmount,
-            due_date: "2026-10-28",
-            status: "Pending",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Final",
-            amount: finalAmount,
-            due_date: "2026-12-05",
-            status: "Pending",
-            is_demo: true,
-          }
-        );
-      } else if (idx === 2) {
-        // Alsisar Sufi: Booking Paid in October
-        paymentsToInsert.push(
-          {
-            wedding_id: w.id,
-            milestone: "Booking",
-            amount: bookingAmount,
-            due_date: "2026-10-01",
-            paid_at: "2026-10-02T16:45:00Z",
-            payment_method: "Cheque",
-            transaction_reference: "CHQ-0029104",
-            status: "Paid",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Advance",
-            amount: advanceAmount,
-            due_date: "2026-11-05",
-            status: "Pending",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Final",
-            amount: finalAmount,
-            due_date: "2026-12-10",
-            status: "Pending",
-            is_demo: true,
-          }
-        );
-      } else if (idx === 3) {
-        // Jagmandir Island: Booking Paid in September
-        paymentsToInsert.push(
-          {
-            wedding_id: w.id,
-            milestone: "Booking",
-            amount: bookingAmount,
-            due_date: "2026-09-15",
-            paid_at: "2026-09-15T09:20:00Z",
-            payment_method: "NEFT / RTGS",
-            transaction_reference: "RTGS-KOTK77291023",
-            status: "Paid",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Advance",
-            amount: advanceAmount,
-            due_date: "2026-11-18",
-            status: "Pending",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Final",
-            amount: finalAmount,
-            due_date: "2026-12-25",
-            status: "Pending",
-            is_demo: true,
-          }
-        );
-      } else {
-        // Others: Booking Paid or Pending
-        paymentsToInsert.push(
-          {
-            wedding_id: w.id,
-            milestone: "Booking",
-            amount: bookingAmount,
-            due_date: "2026-10-20",
-            paid_at: idx % 2 === 0 ? "2026-10-21T12:00:00Z" : null,
-            status: idx % 2 === 0 ? "Paid" : "Pending",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Advance",
-            amount: advanceAmount,
-            due_date: "2026-12-15",
-            status: "Pending",
-            is_demo: true,
-          },
-          {
-            wedding_id: w.id,
-            milestone: "Final",
-            amount: finalAmount,
-            due_date: "2027-01-20",
-            status: "Pending",
-            is_demo: true,
-          }
-        );
-      }
-
-      // Expenses
-      expensesToInsert.push({
-        wedding_id: w.id,
-        category: "Palace Permits & Heritage Royalties",
-        description: "Archeological department sound & light clearance permit fee",
-        amount: 85000,
-        incurred_date: "2026-10-10",
-        is_demo: true,
-      });
+    expensesToInsert.push({
+      wedding_id: w.id,
+      category: "Palace Permits & Heritage Royalties",
+      description: "Archeological department sound & light clearance permit fee",
+      amount: 85000,
+      incurred_date: "2026-10-10",
+      is_demo: true,
     });
 
-    const { error: payErr } = await supabase
-      .from("client_payments")
-      .insert(paymentsToInsert);
+    // Seed realistic tasks for each wedding across all 4 stages
+    tasksToInsert.push(
+      {
+        wedding_id: w.id,
+        title: "Confirm Palace Grand Ballroom Floral Setup",
+        phase: "Design",
+        stage: "Done",
+        due_date: "2026-10-25",
+        owner: defaultOwnerId,
+        is_demo: true,
+      },
+      {
+        wedding_id: w.id,
+        title: "Finalize Royal Vintage Chariot Barat Route",
+        phase: "Vendors",
+        stage: "In Progress",
+        due_date: "2026-11-05",
+        owner: defaultOwnerId,
+        is_demo: true,
+      },
+      {
+        wedding_id: w.id,
+        title: "Heritage Sound & Firecracker Municipal Permit",
+        phase: "Venue",
+        stage: "Blocked",
+        due_date: "2026-10-20", // Overdue demonstration
+        owner: defaultOwnerId,
+        is_demo: true,
+      },
+      {
+        wedding_id: w.id,
+        title: "Dispatch Gold Foil Welcome Itineraries to Palace Suites",
+        phase: "Guests",
+        stage: "To Plan",
+        due_date: "2026-11-12",
+        owner: defaultOwnerId,
+        is_demo: true,
+      }
+    );
+  });
 
-    if (payErr) console.warn("Payments insert error:", payErr.message);
+  await execOrDie("client_payments", "insert client_payments", supabase.from("client_payments").insert(paymentsToInsert));
+  await execOrDie("expenses", "insert expenses", supabase.from("expenses").insert(expensesToInsert));
+  await execOrDie("wedding_tasks", "insert wedding_tasks", supabase.from("wedding_tasks").insert(tasksToInsert));
 
-    const { error: expErr } = await supabase
-      .from("expenses")
-      .insert(expensesToInsert);
+  // 9. Verification & Row Counts Summary
+  console.log("\n=======================================================");
+  console.log("📊 THE ROYAL KNOT - SEED VERIFICATION SUMMARY");
+  console.log("=======================================================");
 
-    if (expErr) console.warn("Expenses insert error:", expErr.message);
+  const summaryTables = [
+    "packages",
+    "team_members",
+    "vendors",
+    "task_templates",
+    "enquiries",
+    "weddings",
+    "wedding_tasks",
+    "client_payments",
+    "expenses",
+  ];
+
+  for (const table of summaryTables) {
+    const { count, error } = await supabase
+      .from(table)
+      .select("*", { count: "exact", head: true })
+      .eq("is_demo", true);
+
+    if (error) {
+      console.error(`❌ Verification failed on [${table}]: ${error.message}`);
+      process.exit(1);
+    }
+    console.log(`   • ${table.padEnd(16)} : ${count} demo rows`);
   }
 
-  console.log("✅ THE ROYAL KNOT seed complete!");
-  console.log("   • 8 Palatial Weddings");
-  console.log("   • 10 Luxury Artisan Vendors");
-  console.log("   • 7 Prospective Enquiries across stages");
-  console.log("   • Multi-stage client payments with demo flags");
+  console.log("=======================================================");
+  console.log("✅ Seed completed successfully with 0 errors.\n");
 }
 
 runSeed().catch((err) => {
-  console.error("❌ Seed script failed:", err);
+  console.error("\n❌ Unhandled error in seed script:", err);
   process.exit(1);
 });

@@ -40,11 +40,18 @@ export async function fetchOverviewMetrics(): Promise<{
       .from("expenses")
       .select("amount");
 
+    // 5. Fetch Open Quote Requests
+    const { data: quoteRequestsData } = await supabase
+      .from("quote_requests")
+      .select("id, status")
+      .eq("status", "Open");
+
     const weddings = weddingsData || [];
     const enquiries = enquiriesData || [];
     const payments = paymentsData || [];
     const vendorPayments = vendorPaymentsData || [];
     const expenses = expensesData || [];
+    const openQuoteRequestsCount = (quoteRequestsData || []).length;
 
     // KPI 1: Active Weddings (Planning, Confirmed, In Progress)
     const activeWeddingsCount = weddings.filter((w) =>
@@ -126,6 +133,7 @@ export async function fetchOverviewMetrics(): Promise<{
         totalRevenue,
         outstandingPayments,
         estimatedProfit,
+        openQuoteRequestsCount,
         monthlyRevenue,
         pipelineStages,
         upcomingWeddings,
@@ -143,6 +151,7 @@ export async function fetchOverviewMetrics(): Promise<{
         totalRevenue: 0,
         outstandingPayments: 0,
         estimatedProfit: 0,
+        openQuoteRequestsCount: 0,
         monthlyRevenue: [],
         pipelineStages: [],
         upcomingWeddings: [],

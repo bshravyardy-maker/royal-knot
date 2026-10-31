@@ -1,6 +1,56 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
+
+const cormorantGaramond = localFont({
+  src: [
+    {
+      path: "../fonts/CormorantGaramond-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/CormorantGaramond-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../fonts/CormorantGaramond-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const manrope = localFont({
+  src: [
+    {
+      path: "../fonts/Manrope-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Manrope-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Manrope-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Manrope-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "THE ROYAL KNOT | Luxury Wedding Agency Management",
@@ -14,16 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        {/* Preload Google Fonts for clients with network access; graceful fallback stack if offline */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`${cormorantGaramond.variable} ${manrope.variable}`}>
       <body className="min-h-screen font-sans bg-ivory text-navy antialiased">
         <AppShell>{children}</AppShell>
       </body>
