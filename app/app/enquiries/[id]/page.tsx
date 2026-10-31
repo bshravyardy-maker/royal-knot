@@ -38,8 +38,8 @@ export default async function EnquiryDetailPage({
     enquiry = enqData;
 
     // 2. Fetch contract if any
-    const { data: contractData, error: contractError } = await supabase
-      .from("contracts")
+    const { data: contractData, error: contractError } = await (supabase
+      .from("contracts") as any)
       .select("*")
       .eq("enquiry_id", id)
       .order("created_at", { ascending: false })
@@ -49,11 +49,11 @@ export default async function EnquiryDetailPage({
     if (!contractError && contractData) {
       contract = contractData;
 
-      if (contractData.signature_url) {
+      if ((contractData as any).signature_url) {
         // Generate signed URL from private bucket
         const { data: signedData } = await supabase.storage
           .from("signatures")
-          .createSignedUrl(contractData.signature_url, 60 * 60 * 24);
+          .createSignedUrl((contractData as any).signature_url, 60 * 60 * 24);
 
         if (signedData?.signedUrl) {
           signatureSignedUrl = signedData.signedUrl;
@@ -62,14 +62,14 @@ export default async function EnquiryDetailPage({
     }
 
     // 3. Check if wedding is already created
-    const { data: weddingData } = await supabase
-      .from("weddings")
+    const { data: weddingData } = await (supabase
+      .from("weddings") as any)
       .select("id")
       .eq("enquiry_id", id)
       .maybeSingle();
 
     if (weddingData) {
-      linkedWeddingId = weddingData.id;
+      linkedWeddingId = (weddingData as any).id;
     }
   } catch (err: any) {
     console.error("EnquiryDetailPage error:", err);

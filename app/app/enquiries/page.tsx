@@ -88,7 +88,7 @@ export default async function EnquiriesPage({
         {stages.map((st) => {
           const isSelected = (!stageFilter && st === "All") || stageFilter === st;
           return (
-            <a
+            <Link
               key={st}
               href={st === "All" ? "/enquiries" : `/enquiries?stage=${st}`}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
@@ -98,7 +98,7 @@ export default async function EnquiriesPage({
               }`}
             >
               {st}
-            </a>
+            </Link>
           );
         })}
       </div>

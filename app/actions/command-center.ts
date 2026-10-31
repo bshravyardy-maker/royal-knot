@@ -24,8 +24,8 @@ export async function markArrived(scheduleItemId: string): Promise<ActionResult>
     const supabase = getSupabaseAdmin();
 
     // 1. Fetch current item to check if already arrived
-    const { data: item, error: fetchErr } = await supabase
-      .from("schedule_items")
+    const { data: item, error: fetchErr } = await (supabase
+      .from("schedule_items") as any)
       .select("id, arrived_at, title, event_name")
       .eq("id", scheduleItemId)
       .single();
@@ -36,7 +36,7 @@ export async function markArrived(scheduleItemId: string): Promise<ActionResult>
     }
 
     // Double-click protection: if already set, safely ignore and return current state
-    if (item.arrived_at) {
+    if (item && item.arrived_at) {
       return {
         success: true,
         message: `${item.title || item.event_name || "Vendor"} is already checked in.`,
@@ -46,8 +46,8 @@ export async function markArrived(scheduleItemId: string): Promise<ActionResult>
 
     // 2. Set arrived_at on the server
     const nowIso = new Date().toISOString();
-    const { data: updated, error: updateErr } = await supabase
-      .from("schedule_items")
+    const { data: updated, error: updateErr } = await (supabase
+      .from("schedule_items") as any)
       .update({
         arrived_at: nowIso,
         status: "Done",
@@ -65,7 +65,7 @@ export async function markArrived(scheduleItemId: string): Promise<ActionResult>
     revalidatePath("/command-center");
     return {
       success: true,
-      message: `${updated.title || updated.event_name || "Vendor"} marked as arrived at ${new Date(nowIso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}.`,
+      message: `${updated?.title || updated?.event_name || "Vendor"} marked as arrived at ${new Date(nowIso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}.`,
       data: updated,
     };
   } catch (err: any) {
@@ -111,8 +111,8 @@ export async function logIncident(
       is_demo: false,
     };
 
-    const { data: inserted, error } = await supabase
-      .from("incidents")
+    const { data: inserted, error } = await (supabase
+      .from("incidents") as any)
       .insert(insertPayload)
       .select(`
         *,
@@ -122,8 +122,8 @@ export async function logIncident(
 
     if (error) {
       // Fallback without join if constraint name differs
-      const { data: insertedFallback, error: fallbackErr } = await supabase
-        .from("incidents")
+      const { data: insertedFallback, error: fallbackErr } = await (supabase
+        .from("incidents") as any)
         .insert(insertPayload)
         .select()
         .single();
@@ -177,8 +177,8 @@ export async function resolveIncident(
     const supabase = getSupabaseAdmin();
 
     // 1. Fetch incident to verify current state
-    const { data: incident, error: fetchErr } = await supabase
-      .from("incidents")
+    const { data: incident, error: fetchErr } = await (supabase
+      .from("incidents") as any)
       .select("id, status, title, resolved_at")
       .eq("id", incidentId)
       .single();
@@ -188,7 +188,7 @@ export async function resolveIncident(
       return { success: false, error: fetchErr.message };
     }
 
-    if (incident.status === "Resolved" || incident.resolved_at) {
+    if (incident && (incident.status === "Resolved" || incident.resolved_at)) {
       return {
         success: false,
         error: `Incident "${incident.title}" has already been resolved.`,
@@ -199,8 +199,8 @@ export async function resolveIncident(
     const nowIso = new Date().toISOString();
     const cleanResolution = resolution.trim();
 
-    const { data: updated, error: updateErr } = await supabase
-      .from("incidents")
+    const { data: updated, error: updateErr } = await (supabase
+      .from("incidents") as any)
       .update({
         status: "Resolved",
         resolution: cleanResolution,

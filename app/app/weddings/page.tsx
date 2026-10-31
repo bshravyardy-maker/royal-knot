@@ -85,7 +85,7 @@ export default async function WeddingsPage({
           {cities.map((ct) => {
             const isSelected = (!searchParams.city && ct === "All") || searchParams.city === ct;
             return (
-              <a
+              <Link
                 key={ct}
                 href={ct === "All" ? "/weddings" : `/weddings?city=${ct}`}
                 className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all ${
@@ -95,7 +95,7 @@ export default async function WeddingsPage({
                 }`}
               >
                 {ct}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -108,7 +108,7 @@ export default async function WeddingsPage({
           {statuses.map((st) => {
             const isSelected = (!searchParams.status && st === "All") || searchParams.status === st;
             return (
-              <a
+              <Link
                 key={st}
                 href={st === "All" ? "/weddings" : `/weddings?status=${st}`}
                 className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all ${
@@ -118,7 +118,7 @@ export default async function WeddingsPage({
                 }`}
               >
                 {st}
-              </a>
+              </Link>
             );
           })}
         </div>

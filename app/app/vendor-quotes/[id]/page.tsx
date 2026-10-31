@@ -24,8 +24,8 @@ export default async function QuoteRequestDetailPage({
     const supabase = getSupabaseAdmin();
 
     // 1. Fetch quote request with wedding details
-    const { data: reqData, error: reqErr } = await supabase
-      .from("quote_requests")
+    const { data: reqData, error: reqErr } = await (supabase
+      .from("quote_requests") as any)
       .select(`
         *,
         wedding:weddings (
@@ -43,8 +43,8 @@ export default async function QuoteRequestDetailPage({
     quoteRequest = reqData;
 
     // 2. Fetch all quotes for this request with vendor profile
-    const { data: quotesData, error: quotesErr } = await supabase
-      .from("vendor_quotes")
+    const { data: quotesData, error: quotesErr } = await (supabase
+      .from("vendor_quotes") as any)
       .select(`
         *,
         vendor:vendors (*)

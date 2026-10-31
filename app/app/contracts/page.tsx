@@ -1,11 +1,25 @@
-import { ComingSoon } from "@/components/ComingSoon";
+import React from "react";
+import { Metadata } from "next";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { ContractsClient } from "@/components/ContractsClient";
 
-export default function ContractsPage() {
-  return (
-    <ComingSoon
-      title="Contracts & Digital Signatures"
-      phase="Phase 2 Module"
-      description="Palatial service level agreements, clause generators for heritage venues, and client digital signature audits."
-    />
-  );
+export const metadata: Metadata = {
+  title: "Contracts & Legal Vault | THE ROYAL KNOT",
+  description: "Digital service level agreements, vendor contracts, and executed leases across destination palaces.",
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function ContractsPage() {
+  const supabase = getSupabaseAdmin();
+
+  const [contractsRes, weddingsRes] = await Promise.all([
+    supabase.from("contracts").select("*").order("created_at", { ascending: false }),
+    supabase.from("weddings").select("id, title").order("wedding_date", { ascending: true }),
+  ]);
+
+  const contracts = contractsRes.data || [];
+  const weddings = weddingsRes.data || [];
+
+  return <ContractsClient initialContracts={contracts} weddingsList={weddings} />;
 }

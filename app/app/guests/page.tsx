@@ -1,11 +1,25 @@
-import { ComingSoon } from "@/components/ComingSoon";
+import React from "react";
+import { Metadata } from "next";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { GuestsClient } from "@/components/GuestsClient";
 
-export default function GuestsPage() {
-  return (
-    <ComingSoon
-      title="Guest Hospitality & RSVP Management"
-      phase="Phase 2 Module"
-      description="Manage 400+ guest itineraries, palace room allocations (Rambagh, Udaivilas, Leela), dietary protocols, and chauffeur fleet coordination."
-    />
-  );
+export const metadata: Metadata = {
+  title: "Guest Hospitality & RSVPs | THE ROYAL KNOT",
+  description: "Palatial room allocations, dietary protocols, and guest itineraries across destination weddings.",
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function GuestsPage() {
+  const supabase = getSupabaseAdmin();
+
+  const [guestsRes, weddingsRes] = await Promise.all([
+    supabase.from("guests").select("*").order("created_at", { ascending: false }),
+    supabase.from("weddings").select("id, title").order("wedding_date", { ascending: true }),
+  ]);
+
+  const guests = guestsRes.data || [];
+  const weddings = weddingsRes.data || [];
+
+  return <GuestsClient initialGuests={guests} weddingsList={weddings} />;
 }

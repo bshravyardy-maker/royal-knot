@@ -27,8 +27,8 @@ export default async function VendorQuotesPage() {
     const supabase = getSupabaseAdmin();
 
     // 1. Fetch quote requests
-    const { data: reqData, error: reqErr } = await supabase
-      .from("quote_requests")
+    const { data: reqData, error: reqErr } = await (supabase
+      .from("quote_requests") as any)
       .select(`
         *,
         wedding:weddings (
@@ -43,18 +43,18 @@ export default async function VendorQuotesPage() {
     if (reqErr) throw reqErr;
 
     // 2. Fetch quotes counts for each request
-    const { data: quotesData } = await supabase
-      .from("vendor_quotes")
+    const { data: quotesData } = await (supabase
+      .from("vendor_quotes") as any)
       .select("id, quote_request_id");
 
     const countMap: Record<string, number> = {};
     if (quotesData) {
-      quotesData.forEach((q) => {
+      (quotesData as any[]).forEach((q: any) => {
         countMap[q.quote_request_id] = (countMap[q.quote_request_id] || 0) + 1;
       });
     }
 
-    requests = (reqData || []).map((r) => ({
+    requests = ((reqData || []) as any[]).map((r: any) => ({
       ...r,
       quotes_count: countMap[r.id] || 0,
     }));

@@ -69,8 +69,8 @@ export async function createEnquiryAction(data: CreateEnquiryInput): Promise<Act
       is_demo: false, // Live intake
     };
 
-    const { data: inserted, error } = await supabase
-      .from("enquiries")
+    const { data: inserted, error } = await (supabase
+      .from("enquiries") as any)
       .insert(insertPayload)
       .select()
       .single();
@@ -85,7 +85,7 @@ export async function createEnquiryAction(data: CreateEnquiryInput): Promise<Act
 
     return {
       success: true,
-      message: `Enquiry for ${inserted.couple_name} created successfully!`,
+      message: `Enquiry for ${inserted?.couple_name} created successfully!`,
       data: inserted,
     };
   } catch (err: any) {
@@ -94,6 +94,70 @@ export async function createEnquiryAction(data: CreateEnquiryInput): Promise<Act
       success: false,
       error: err.message || "An unexpected error occurred while saving enquiry.",
     };
+  }
+}
+
+// 1B. Public Portal Inquiry (Couples & Guests)
+export interface PublicInquiryInput {
+  inquiry_type: "couple_inquiry" | "guest_request" | "general_query";
+  name: string;
+  phone: string;
+  email?: string;
+  destination?: string;
+  message: string;
+}
+
+export async function submitPublicInquiryAction(data: PublicInquiryInput): Promise<ActionResult> {
+  if (!data.name || data.name.trim().length < 2) {
+    return { success: false, error: "Please enter your name." };
+  }
+  if (!data.phone || data.phone.trim().length < 8) {
+    return { success: false, error: "A valid contact phone number is required." };
+  }
+  if (!data.message || data.message.trim().length < 5) {
+    return { success: false, error: "Please write your query or celebration request." };
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const isCouple = data.inquiry_type === "couple_inquiry";
+
+    const insertPayload = {
+      couple_name: isCouple ? data.name.trim() : `${data.name.trim()} (Guest Inquiry)`,
+      phone: data.phone.trim(),
+      email: data.email?.trim() || null,
+      guests: isCouple ? 400 : 1,
+      budget: isCouple ? 8000000 : 50000,
+      theme: isCouple ? "Palace Romance" : "Guest Hospitality & RSVP Protocol",
+      source: "Client & Guest Portal",
+      package: isCouple ? "Full-Service" : "Partial / Day-of",
+      city: data.destination || "Jaipur",
+      notes: `[Portal Inquiry - ${data.inquiry_type.toUpperCase()}] ${data.message.trim()}`,
+      stage: "New" as const,
+      is_demo: false,
+    };
+
+    const { data: created, error } = await (supabase
+      .from("enquiries") as any)
+      .insert(insertPayload)
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("submitPublicInquiryAction error:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/");
+    revalidatePath("/enquiries");
+
+    return {
+      success: true,
+      message: "Your royal request has been received! A concierge partner will connect shortly.",
+      data: { id: created?.id },
+    };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to submit request." };
   }
 }
 
@@ -112,8 +176,8 @@ export async function updateEnquiryStageAction(
   try {
     const supabase = getSupabaseAdmin();
 
-    const { data, error } = await supabase
-      .from("enquiries")
+    const { data, error } = await (supabase
+      .from("enquiries") as any)
       .update({ stage: newStage, updated_at: new Date().toISOString() })
       .eq("id", enquiryId)
       .select()
@@ -195,8 +259,8 @@ export async function signContractAction(payload: {
       is_demo: false,
     };
 
-    const { data: contract, error: contractErr } = await supabase
-      .from("contracts")
+    const { data: contract, error: contractErr } = await (supabase
+      .from("contracts") as any)
       .insert(contractPayload)
       .select()
       .single();
@@ -249,7 +313,7 @@ export async function recordBookingDepositAction(
   try {
     const supabase = getSupabaseAdmin();
 
-    const { data: weddingId, error } = await supabase.rpc("record_booking_deposit", {
+    const { data: weddingId, error } = await (supabase.rpc as any)("record_booking_deposit", {
       p_enquiry_id: enquiryId,
       p_amount: Number(amount),
     });
@@ -309,8 +373,8 @@ export async function updateTaskStageAction(
       updatePayload.completed_at = null;
     }
 
-    const { data, error } = await supabase
-      .from("wedding_tasks")
+    const { data, error } = await (supabase
+      .from("wedding_tasks") as any)
       .update(updatePayload)
       .eq("id", taskId)
       .select()

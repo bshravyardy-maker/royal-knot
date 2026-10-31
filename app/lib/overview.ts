@@ -9,49 +9,33 @@ export async function fetchOverviewMetrics(): Promise<{
   try {
     const supabase = getSupabaseAdmin();
 
-    // 1. Fetch Weddings
-    const { data: weddingsData, error: weddingsError } = await supabase
-      .from("weddings")
-      .select("*")
-      .order("wedding_date", { ascending: true });
+    // Fetch all overview datasets concurrently
+    const [
+      weddingsRes,
+      enquiriesRes,
+      paymentsRes,
+      vendorPaymentsRes,
+      expensesRes,
+      quoteRequestsRes,
+    ] = await Promise.all([
+      supabase.from("weddings").select("*").order("wedding_date", { ascending: true }),
+      supabase.from("enquiries").select("*"),
+      supabase.from("client_payments").select("*"),
+      supabase.from("vendor_payments").select("amount, status"),
+      supabase.from("expenses").select("amount"),
+      (supabase.from("quote_requests") as any).select("id, status").eq("status", "Open"),
+    ]);
 
-    if (weddingsError) throw weddingsError;
+    if (weddingsRes.error) throw weddingsRes.error;
+    if (enquiriesRes.error) throw enquiriesRes.error;
+    if (paymentsRes.error) throw paymentsRes.error;
 
-    // 2. Fetch Enquiries
-    const { data: enquiriesData, error: enquiriesError } = await supabase
-      .from("enquiries")
-      .select("*");
-
-    if (enquiriesError) throw enquiriesError;
-
-    // 3. Fetch Client Payments
-    const { data: paymentsData, error: paymentsError } = await supabase
-      .from("client_payments")
-      .select("*");
-
-    if (paymentsError) throw paymentsError;
-
-    // 4. Fetch Vendor Payments and Expenses for Profit Computation
-    const { data: vendorPaymentsData, error: vPayError } = await supabase
-      .from("vendor_payments")
-      .select("amount, status");
-
-    const { data: expensesData, error: expError } = await supabase
-      .from("expenses")
-      .select("amount");
-
-    // 5. Fetch Open Quote Requests
-    const { data: quoteRequestsData } = await supabase
-      .from("quote_requests")
-      .select("id, status")
-      .eq("status", "Open");
-
-    const weddings = weddingsData || [];
-    const enquiries = enquiriesData || [];
-    const payments = paymentsData || [];
-    const vendorPayments = vendorPaymentsData || [];
-    const expenses = expensesData || [];
-    const openQuoteRequestsCount = (quoteRequestsData || []).length;
+    const weddings = (weddingsRes.data || []) as any[];
+    const enquiries = (enquiriesRes.data || []) as any[];
+    const payments = (paymentsRes.data || []) as any[];
+    const vendorPayments = (vendorPaymentsRes.data || []) as any[];
+    const expenses = (expensesRes.data || []) as any[];
+    const openQuoteRequestsCount = ((quoteRequestsRes.data || []) as any[]).length;
 
     // KPI 1: Active Weddings (Planning, Confirmed, In Progress)
     const activeWeddingsCount = weddings.filter((w) =>

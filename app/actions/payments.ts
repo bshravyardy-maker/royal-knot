@@ -13,8 +13,8 @@ function fail(e: unknown): Result {
 export async function markClientPaymentReceived(paymentId: string): Promise<Result> {
   try {
     const db = getSupabaseAdmin();
-    const { data, error } = await db
-      .from("client_payments")
+    const { data, error } = await (db
+      .from("client_payments") as any)
       .update({ paid_at: new Date().toISOString() })
       .eq("id", paymentId)
       .is("paid_at", null)
@@ -33,8 +33,8 @@ export async function addVendorBill(weddingVendorId: string, amount: number, not
     if (!weddingVendorId) return { ok: false, error: "Choose a vendor" };
     if (!(amount > 0)) return { ok: false, error: "Enter a bill amount above zero" };
     const db = getSupabaseAdmin();
-    const { error } = await db
-      .from("vendor_bills")
+    const { error } = await (db
+      .from("vendor_bills") as any)
       .insert({ wedding_vendor_id: weddingVendorId, amount, note: note.trim() || null });
     if (error) return fail(error);
     revalidatePath("/payments");
@@ -57,7 +57,7 @@ export async function addExtraCharge(
     if (!(qty > 0)) return { ok: false, error: "Quantity must be above zero" };
     if (!(unitPrice >= 0)) return { ok: false, error: "Enter a valid unit price" };
     const db = getSupabaseAdmin();
-    const { error } = await db.from("extra_charges").insert({
+    const { error } = await (db.from("extra_charges") as any).insert({
       wedding_id: weddingId,
       description: description.trim(),
       qty,
@@ -77,7 +77,7 @@ export async function payVendor(billId: string, amount: number, key: string): Pr
     if (!billId) return { ok: false, error: "Choose a bill" };
     if (!(amount > 0)) return { ok: false, error: "Enter an amount above zero" };
     const db = getSupabaseAdmin();
-    const { data, error } = await db.rpc("pay_vendor", { p_bill_id: billId, p_amount: amount, p_key: key });
+    const { data, error } = await (db.rpc as any)("pay_vendor", { p_bill_id: billId, p_amount: amount, p_key: key });
     if (error) return fail(error);
     revalidatePath("/payments");
     if (data && data.status === "duplicate") {

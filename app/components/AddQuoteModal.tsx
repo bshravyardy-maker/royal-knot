@@ -22,7 +22,7 @@ interface AddQuoteModalProps {
   guestCount: number;
   category: string;
   vendorsList: Vendor[];
-  onQuoteAdded?: () => void;
+  onQuoteAdded?: (newQuote?: any) => void;
 }
 
 const COMMON_INCLUSIONS = [
@@ -107,7 +107,7 @@ export function AddQuoteModal({
       } else {
         setIsLoading(false);
         onClose();
-        if (onQuoteAdded) onQuoteAdded();
+        if (onQuoteAdded) onQuoteAdded(res.data);
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

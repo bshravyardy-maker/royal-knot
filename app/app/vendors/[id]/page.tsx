@@ -38,7 +38,7 @@ export default async function VendorDetailPage({
 }) {
   const { id } = params;
 
-  let vendor: Vendor | null = null;
+  let vendor: any = null;
   let weddingEngagements: any[] = [];
   let submittedQuotes: any[] = [];
   let errorMsg: string | null = null;

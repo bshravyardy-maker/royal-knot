@@ -56,8 +56,8 @@ export async function createQuoteRequestAction(
       is_demo: false,
     };
 
-    const { data: created, error } = await supabase
-      .from("quote_requests")
+    const { data: created, error } = await (supabase
+      .from("quote_requests") as any)
       .insert(insertPayload)
       .select("id")
       .single();
@@ -74,7 +74,7 @@ export async function createQuoteRequestAction(
     return {
       success: true,
       message: "Quote request published to vendor network!",
-      data: { id: created.id },
+      data: { id: created?.id },
     };
   } catch (err: any) {
     console.error("createQuoteRequestAction unexpected error:", err);
@@ -97,8 +97,8 @@ export async function addVendorQuoteAction(
     const supabase = getSupabaseAdmin();
 
     // Fetch the request to verify open status & get guest count
-    const { data: request, error: reqErr } = await supabase
-      .from("quote_requests")
+    const { data: request, error: reqErr } = await (supabase
+      .from("quote_requests") as any)
       .select("status, guest_count")
       .eq("id", data.quote_request_id)
       .single();
@@ -139,10 +139,10 @@ export async function addVendorQuoteAction(
       is_demo: false,
     };
 
-    const { data: createdQuote, error: insertErr } = await supabase
-      .from("vendor_quotes")
+    const { data: createdQuote, error: insertErr } = await (supabase
+      .from("vendor_quotes") as any)
       .insert(insertPayload)
-      .select("id")
+      .select("*, vendor:vendors(*)")
       .single();
 
     if (insertErr) {
@@ -157,7 +157,7 @@ export async function addVendorQuoteAction(
     return {
       success: true,
       message: "Vendor quotation added successfully!",
-      data: { id: createdQuote.id },
+      data: createdQuote as any,
     };
   } catch (err: any) {
     console.error("addVendorQuoteAction unexpected error:", err);
@@ -176,7 +176,7 @@ export async function awardQuoteAction(
   try {
     const supabase = getSupabaseAdmin();
 
-    const { data: weddingVendorId, error } = await supabase.rpc("award_quote", {
+    const { data: weddingVendorId, error } = await (supabase.rpc as any)("award_quote", {
       p_quote_id: quoteId,
     });
 

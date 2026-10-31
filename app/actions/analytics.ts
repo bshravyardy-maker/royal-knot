@@ -21,8 +21,7 @@ export async function createShareLink(): Promise<ActionResult<{ token: string; s
     const token = crypto.randomBytes(16).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data, error } = await db
-      .from("share_tokens")
+    const { data, error } = await (db.from("share_tokens") as any)
       .insert({
         token,
         expires_at: expiresAt,
@@ -60,8 +59,7 @@ export async function revokeShareLink(token: string): Promise<ActionResult> {
     if (!token) return { ok: false, error: "Missing token to revoke" };
 
     const db = getSupabaseAdmin();
-    const { error } = await db
-      .from("share_tokens")
+    const { error } = await (db.from("share_tokens") as any)
       .update({ revoked: true })
       .eq("token", token);
 

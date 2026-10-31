@@ -24,8 +24,8 @@ export default async function SharePage({ params }: SharePageProps) {
     const db = getSupabaseAdmin();
 
     // 1. Validate share token (exists, not revoked, not expired)
-    const { data: shareToken, error: tokenErr } = await db
-      .from("share_tokens")
+    const { data: shareToken, error: tokenErr } = await (db
+      .from("share_tokens") as any)
       .select("*")
       .eq("token", token)
       .single();

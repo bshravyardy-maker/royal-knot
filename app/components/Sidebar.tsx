@@ -32,12 +32,12 @@ export const navigationItems = [
   { name: "Vendors", href: "/vendors", icon: Store, isImplemented: true },
   { name: "Vendor Quotes", href: "/vendor-quotes", icon: FileSpreadsheet, isImplemented: true },
   { name: "Wedding Tasks", href: "/wedding-tasks", icon: CheckSquare, isImplemented: true },
-  { name: "Guest Management", href: "/guests", icon: Users, isImplemented: false },
+  { name: "Guest Management", href: "/guests", icon: Users, isImplemented: true },
   { name: "Day-of Command Center", href: "/command-center", icon: Compass, isImplemented: true },
-  { name: "Contracts", href: "/contracts", icon: FileSignature, isImplemented: false },
+  { name: "Contracts", href: "/contracts", icon: FileSignature, isImplemented: true },
   { name: "Payments & Expenses", href: "/payments", icon: CreditCard, isImplemented: true },
   { name: "Analytics & Reports", href: "/analytics", icon: BarChart3, isImplemented: true },
-  { name: "Settings", href: "/settings", icon: Settings, isImplemented: false },
+  { name: "Settings", href: "/settings", icon: Settings, isImplemented: true },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -126,7 +126,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* Agency Footer Status */}
-        <div className="p-4 border-t border-[#C6A46A]/20 bg-navy-dark/40">
+        <div className="p-4 border-t border-[#C6A46A]/20 bg-navy-dark/40 space-y-2">
+          <Link
+            href="/login"
+            onClick={onClose}
+            className="w-full py-2 px-3 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/30 text-gold-light text-xs font-semibold flex items-center justify-between transition-colors group"
+          >
+            <span>Client & Guest Portal</span>
+            <span className="text-[10px] text-gold group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+          </Link>
+
           <div className="p-3 rounded-xl bg-navy/80 border border-[#C6A46A]/20 flex items-center space-x-3">
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold">
               <Sparkles className="w-4 h-4" />

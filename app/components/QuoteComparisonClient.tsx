@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -49,6 +49,16 @@ export function QuoteComparisonClient({
   const [quotes, setQuotes] = useState<VendorQuote[]>(initialQuotes);
   const [requestStatus, setRequestStatus] = useState(quoteRequest.status);
   const [awardedQuoteId, setAwardedQuoteId] = useState(quoteRequest.awarded_quote_id);
+
+  // Sync state whenever server revalidates/refreshes
+  useEffect(() => {
+    setQuotes(initialQuotes);
+  }, [initialQuotes]);
+
+  useEffect(() => {
+    setRequestStatus(quoteRequest.status);
+    setAwardedQuoteId(quoteRequest.awarded_quote_id);
+  }, [quoteRequest.status, quoteRequest.awarded_quote_id]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [confirmQuoteToAward, setConfirmQuoteToAward] = useState<VendorQuote | null>(null);
@@ -506,7 +516,16 @@ export function QuoteComparisonClient({
         guestCount={quoteRequest.guest_count}
         category={quoteRequest.category}
         vendorsList={vendorsList}
-        onQuoteAdded={() => {
+        onQuoteAdded={(newQuote) => {
+          if (newQuote && newQuote.id) {
+            setQuotes((prev) => {
+              const exists = prev.some((q) => q.id === newQuote.id);
+              if (exists) {
+                return prev.map((q) => (q.id === newQuote.id ? newQuote : q));
+              }
+              return [...prev, newQuote];
+            });
+          }
           router.refresh();
         }}
       />

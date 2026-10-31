@@ -25,13 +25,13 @@ The platform eliminates fragmented communication channels, spreadsheets, and man
 - **In-App Agreement Signing:** Digital service agreement generation with an interactive, touch-friendly signature pad.
 - **Private Document Archiving:** Signed agreements are secured within a private Supabase Storage vault (`signatures`).
 
-### 3. Automated Wedding Provisioning & Task Orchestration
+### 3. Automated Wedding Provisioning & Interactive Task Operations
 - **Atomic Booking Deposit:** A single transactional database function (`record_booking_deposit`) automatically advances the enquiry to *Won*, provisions the wedding record, schedules ~30 milestone tasks from templates, and establishes 3 client payment milestones (*Booking, Advance, Final*).
-- **Interactive Task Board:** Kanban-style task tracking categorized by operational phases (*Planning, Countdown, Day-of, Post-event*) with role-based team ownership.
+- **Interactive Wedding Task Command:** Clickable per-wedding selector with real-time completion progress bars (% complete, X of Y Done), dedicated "What's Done" vs "What's Not Done" tabs, 1-click circular status toggles, and dual-view (Checklist vs Kanban) modes.
 
 ### 4. Vendor Tenders & Side-by-Side Rate Cards
 - **Request for Proposals (RFPs):** Create structured quote requests with target guest counts, deadlines, and requirements.
-- **Multi-Vendor Rate Card Comparison:** Aligned column comparison evaluating price per plate, overtime rates, and inclusions.
+- **Multi-Vendor Rate Card Comparison:** Aligned column comparison evaluating price per plate, overtime rates, and inclusions with instant zero-flicker optimistic quote logging.
 - **Single-Click Tendering:** Awarding a vendor automatically closes competing bids and creates an attached vendor contract in a single database transaction (`award_quote`).
 
 ### 5. Day-of Command Center & Live Run-Sheet
@@ -39,7 +39,22 @@ The platform eliminates fragmented communication channels, spreadsheets, and man
 - **Vendor Arrival Tracking:** Idempotent arrival check-in with automatic flags for late vendors.
 - **Live Incident Desk:** Real-time logging of day-of exceptions with severity ratings (*Low, Medium, High*), assigned coordinators, and resolution tracking.
 
-### 6. Financial Reconciliation & Payment Guard
+### 6. Guest Management & Palace RSVPs
+- **RSVP & Hospitality Desk (`/guests`):** Track guest attendance (Attending, Declined, Pending) across all royal celebrations.
+- **VIP & Dietary Protocol:** Filter VIP delegations and track palatial room allocations and specialized catering protocols (Jain, vegan, allergies).
+
+### 7. Digital Contracts Vault
+- **Legal Repository (`/contracts`):** Centralized ledger for Client Agreements, Vendor Contracts, and Heritage Venue Bookings with total value tracking and live execution status updates.
+
+### 8. Agency Settings & Operational Diagnostics
+- **Settings & SLA Management (`/settings`):** Agency treasury settings, team partner roster, luxury package tiers, and operational emergency escalation SLAs.
+- **Supabase Diagnostics:** Real-time latency, storage health, and database connectivity status check.
+
+### 9. Global Search & Customer-Guest Portal
+- **Global Header Search:** Live debounced search across weddings, enquiries, and artisan vendors with category pills and keyboard navigation.
+- **Dual-Mode Login & Inquiry Desk (`/login`):** 1-click Concierge & Planner dashboard entry alongside a public customer and guest request desk generating tracking reference codes for couples and attendees.
+
+### 10. Financial Reconciliation & Payment Guard
 - **Milestone Invoicing:** Automated calculation of contract values, client-billable extras, and remaining balances.
 - **Vendor Bill Matching:** Three-way reconciliation comparing agreed contract amounts against actual vendor invoices.
 - **Double-Payment Guard:** Transaction-level payment validation (`pay_vendor`) ensuring vendor payments never exceed outstanding balances.
@@ -86,28 +101,40 @@ royal-knot/
 │   ├── actions/                      # Server Actions (Mutations & Service Role Operations)
 │   │   ├── analytics.ts              # Executive share tokens & reporting
 │   │   ├── command-center.ts         # Live arrivals & day-of incidents
-│   │   ├── enquiries.ts              # Enquiry pipeline & agreement signing
+│   │   ├── contracts.ts              # Contract registration & status lifecycle
+│   │   ├── enquiries.ts              # Enquiry pipeline, digital agreement & portal requests
+│   │   ├── guests.ts                 # Guest RSVP management & VIP protocols
 │   │   ├── payments.ts               # Vendor bills, client payments & extras
 │   │   ├── quotes.ts                 # Vendor quote tenders & awards
+│   │   ├── search.ts                 # Live search across weddings, enquiries & vendors
 │   │   └── weddings.ts               # Wedding provisioning & task state
 │   ├── app/                          # Next.js App Router Pages
 │   │   ├── (overview)/page.tsx       # Palatial dashboard & KPI metrics
 │   │   ├── analytics/                # Founder P&L, scorecards & dues
 │   │   ├── command-center/           # Day-of live schedule run-sheet
+│   │   ├── contracts/                # Digital contracts & legal agreements vault
 │   │   ├── enquiries/                # Enquiry funnel & digital agreement view
+│   │   ├── guests/                   # Guest hospitality & RSVP management
+│   │   ├── login/                    # Dual-mode Concierge entry & public request desk
 │   │   ├── payments/                 # Financial ledger & balance reconciliation
+│   │   ├── settings/                 # Agency configuration, SLAs & Supabase diagnostics
 │   │   ├── share/[token]/            # Public read-only analytics view
 │   │   ├── vendor-quotes/            # RFP comparison & tender awards
 │   │   ├── vendors/                  # Curated artisan vendor directory
-│   │   ├── wedding-tasks/            # Multi-phase planning task board
+│   │   ├── wedding-tasks/            # Interactive multi-phase task operations hub
 │   │   ├── weddings/                 # Wedding details & run-sheets
 │   │   ├── loading.tsx               # Animated skeleton loading state
 │   │   └── error.tsx                 # Client error boundary with retry handler
 │   ├── components/                   # UI Components & Interactive Clients
 │   │   ├── AnalyticsClient.tsx       # Founder analytics & cashflow tables
+│   │   ├── ContractsClient.tsx       # Legal agreements & vault UI
+│   │   ├── GuestsClient.tsx          # Guest RSVP & room allocation management
+│   │   ├── Header.tsx                # Top navigation with live search & portal shortcut
 │   │   ├── PaymentsClient.tsx        # Billing, milestone & extras ledger
 │   │   ├── QuoteComparisonClient.tsx # Multi-vendor rate card comparison
+│   │   ├── SettingsClient.tsx        # Agency profile, SLAs & system diagnostics
 │   │   ├── Sidebar.tsx               # Palatial responsive navigation drawer
+│   │   ├── WeddingTasksBoardClient.tsx# Clickable wedding task operations board
 │   │   └── ...
 │   ├── lib/                          # Database Clients & Data Utilities
 │   │   ├── supabase/

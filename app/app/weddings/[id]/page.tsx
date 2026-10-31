@@ -36,7 +36,7 @@ export default async function WeddingDetailPage({
 }) {
   const { id } = params;
 
-  let wedding: Wedding | null = null;
+  let wedding: any = null;
   let payments: ClientPayment[] = [];
   let tasks: WeddingTask[] = [];
   let weddingVendors: any[] = [];

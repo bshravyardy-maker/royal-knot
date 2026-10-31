@@ -11,41 +11,24 @@ export default async function WeddingTasksPage({
   searchParams: { weddingId?: string; ownerId?: string };
 }) {
   let tasks: WeddingTask[] = [];
-  let weddingsList: { id: string; title: string }[] = [];
+  let weddingsList: { id: string; title: string; wedding_date?: string; city?: string }[] = [];
   let teamMembers: TeamMember[] = [];
   let errorMsg: string | null = null;
 
   try {
     const supabase = getSupabaseAdmin();
 
-    // 1. Fetch wedding tasks
-    const { data: taskData, error: taskErr } = await supabase
-      .from("wedding_tasks")
-      .select("*")
-      .order("due_date", { ascending: true });
+    const [taskRes, wedRes, teamRes] = await Promise.all([
+      supabase.from("wedding_tasks").select("*").order("due_date", { ascending: true }),
+      supabase.from("weddings").select("id, title, wedding_date, city").order("wedding_date", { ascending: true }),
+      supabase.from("team_members").select("*").order("name", { ascending: true }),
+    ]);
 
-    if (taskErr) throw taskErr;
-    tasks = taskData || [];
+    if (taskRes.error) throw taskRes.error;
 
-    // 2. Fetch weddings list for filter
-    const { data: wedData, error: wedErr } = await supabase
-      .from("weddings")
-      .select("id, title")
-      .order("wedding_date", { ascending: true });
-
-    if (!wedErr && wedData) {
-      weddingsList = wedData;
-    }
-
-    // 3. Fetch team members for filter & card owner display
-    const { data: teamData, error: teamErr } = await supabase
-      .from("team_members")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (!teamErr && teamData) {
-      teamMembers = teamData;
-    }
+    tasks = taskRes.data || [];
+    weddingsList = wedRes.data || [];
+    teamMembers = teamRes.data || [];
   } catch (err: any) {
     console.error("WeddingTasksPage error:", err);
     errorMsg = err.message || "Failed to load wedding tasks.";
