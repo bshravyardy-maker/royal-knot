@@ -50,9 +50,23 @@ export function QuoteComparisonClient({
   const [requestStatus, setRequestStatus] = useState(quoteRequest.status);
   const [awardedQuoteId, setAwardedQuoteId] = useState(quoteRequest.awarded_quote_id);
 
-  // Sync state whenever server revalidates/refreshes
+  // Merge initialQuotes with any locally added quotes so nothing ever disappears on revalidation
   useEffect(() => {
-    setQuotes(initialQuotes);
+    if (!initialQuotes) return;
+    setQuotes((prev) => {
+      const map = new Map<string, VendorQuote>();
+      // Keep any quotes from server first
+      for (const q of initialQuotes) {
+        if (q && q.id) map.set(q.id, q);
+      }
+      // Preserve any locally added/optimistic quotes so they never vanish
+      for (const q of prev) {
+        if (q && q.id && !map.has(q.id)) {
+          map.set(q.id, q);
+        }
+      }
+      return Array.from(map.values());
+    });
   }, [initialQuotes]);
 
   useEffect(() => {
@@ -519,11 +533,12 @@ export function QuoteComparisonClient({
         onQuoteAdded={(newQuote) => {
           if (newQuote && newQuote.id) {
             setQuotes((prev) => {
-              const exists = prev.some((q) => q.id === newQuote.id);
-              if (exists) {
-                return prev.map((q) => (q.id === newQuote.id ? newQuote : q));
+              const map = new Map<string, VendorQuote>();
+              for (const q of prev) {
+                if (q && q.id) map.set(q.id, q);
               }
-              return [...prev, newQuote];
+              map.set(newQuote.id, newQuote);
+              return Array.from(map.values());
             });
           }
           router.refresh();

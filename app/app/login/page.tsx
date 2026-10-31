@@ -12,20 +12,29 @@ import {
   Mail,
   MapPin,
   Calendar,
-  MessageSquare,
   ShieldCheck,
   ArrowRight,
   Loader2,
   Users,
-  Building,
   Heart,
-  HelpCircle,
+  Lock,
+  Eye,
+  EyeOff,
+  UserCheck,
 } from "lucide-react";
 import { submitPublicInquiryAction } from "@/actions/enquiries";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"portal" | "staff">("portal");
+  const [activeTab, setActiveTab] = useState<"staff" | "portal">("staff");
+
+  // Login Form State
+  const [loginEmail, setLoginEmail] = useState("founder@royalknot.in");
+  const [loginPassword, setLoginPassword] = useState("••••••••••••");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isEntering, setIsEntering] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   // Portal Inquiry Form State
   const [inquiryType, setInquiryType] = useState<"couple_inquiry" | "guest_request" | "general_query">("couple_inquiry");
@@ -38,9 +47,23 @@ export default function LoginPage() {
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Staff Login State
-  const [selectedStaff, setSelectedStaff] = useState("Gayatri Devi");
-  const [isEntering, setIsEntering] = useState(false);
+  async function handleLoginSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginError(null);
+    if (!loginEmail.trim()) {
+      setLoginError("Please enter your registered email or staff ID.");
+      return;
+    }
+    setIsEntering(true);
+    setTimeout(() => {
+      router.push("/");
+    }, 700);
+  }
+
+  function handleSelectQuickRole(roleEmail: string, roleName: string) {
+    setLoginEmail(roleEmail);
+    setLoginPassword("RoyalKnot@2026");
+  }
 
   async function handleInquirySubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,13 +94,6 @@ export default function LoginPage() {
     }
   }
 
-  function handleStaffEnter() {
-    setIsEntering(true);
-    setTimeout(() => {
-      router.push("/");
-    }, 600);
-  }
-
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4">
       <div className="w-full max-w-xl bg-white rounded-3xl shadow-elevated border border-[#C6A46A]/30 overflow-hidden animate-fadeIn">
@@ -104,18 +120,6 @@ export default function LoginPage() {
           {/* Switcher Tabs */}
           <div className="mt-6 flex items-center justify-center bg-navy/60 p-1 rounded-2xl border border-gold/30 max-w-sm mx-auto">
             <button
-              onClick={() => setActiveTab("portal")}
-              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
-                activeTab === "portal"
-                  ? "bg-gold text-navy shadow-sm"
-                  : "text-ivory/70 hover:text-white"
-              }`}
-            >
-              <Heart className="w-3.5 h-3.5" />
-              <span>Customer & Guest Desk</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab("staff")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
                 activeTab === "staff"
@@ -124,12 +128,177 @@ export default function LoginPage() {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Concierge Staff</span>
+              <span>Portal Sign In</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("portal")}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                activeTab === "portal"
+                  ? "bg-gold text-navy shadow-sm"
+                  : "text-ivory/70 hover:text-white"
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5" />
+              <span>Direct Client Enquiry</span>
             </button>
           </div>
         </div>
 
-        {/* Tab 1: Customer & Guest Portal */}
+        {/* Tab 1: Staff / Portal Sign In */}
+        {activeTab === "staff" && (
+          <div className="p-6 sm:p-8 space-y-6">
+            <div>
+              <h2 className="text-xl font-serif font-bold text-navy">
+                Sign In to Your Palatial Account
+              </h2>
+              <p className="text-xs text-navy/60 mt-0.5">
+                Access your destination wedding portfolio, vendor tenders, and event command center.
+              </p>
+            </div>
+
+            {loginError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                {loginError}
+              </div>
+            )}
+
+            <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-navy/70 mb-1">
+                  Email Address or Royal Staff ID
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type="email"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    required
+                    placeholder="planner@royalknot.in"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold text-navy text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-navy/70">
+                    Password / Access Key
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => alert("Password reset instructions have been dispatched to your registered secure email.")}
+                    className="text-[11px] text-gold-dark hover:underline font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
+                    placeholder="Enter your confidential password"
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold text-navy text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-navy"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center space-x-2 cursor-pointer text-gray-600">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="rounded border-gray-300 text-navy focus:ring-gold"
+                  />
+                  <span className="text-[11px]">Remember this device</span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isEntering}
+                className="w-full btn-gold py-3 text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
+              >
+                {isEntering ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Verifying Credentials & Entering...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="w-4 h-4" />
+                    <span>Sign In to Royal Knot</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Quick Demo Access Credentials */}
+            <div className="pt-2 border-t border-gray-100">
+              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block mb-2">
+                1-Click Quick Select Sign In:
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleSelectQuickRole("gayatri@royalknot.in", "Gayatri Devi")}
+                  className="p-2 rounded-xl border border-gold/40 hover:bg-ivory/60 text-left transition-colors"
+                >
+                  <p className="font-bold text-navy text-[11px]">Gayatri Devi</p>
+                  <p className="text-[10px] text-gold-dark font-medium">Founder & Planner</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectQuickRole("raghav@royalknot.in", "Raghavendra")}
+                  className="p-2 rounded-xl border border-gray-200 hover:bg-ivory/60 text-left transition-colors"
+                >
+                  <p className="font-bold text-navy text-[11px]">Raghavendra</p>
+                  <p className="text-[10px] text-gray-500 font-medium">Lead Operations</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectQuickRole("client@royalknot.in", "Veer & Aanya")}
+                  className="p-2 rounded-xl border border-gray-200 hover:bg-ivory/60 text-left transition-colors"
+                >
+                  <p className="font-bold text-navy text-[11px]">Royal Couple</p>
+                  <p className="text-[10px] text-gray-500 font-medium">Client Portal</p>
+                </button>
+              </div>
+            </div>
+
+            {/* Switch to Online Enquiry */}
+            <div className="p-3 rounded-2xl bg-ivory/50 border border-gold/20 flex items-center justify-between text-xs">
+              <div>
+                <p className="font-semibold text-navy">Looking to plan your wedding?</p>
+                <p className="text-[11px] text-gray-500">Submit an online consultation enquiry directly.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("portal")}
+                className="text-gold-dark hover:underline font-bold text-xs flex items-center space-x-1"
+              >
+                <span>Enquire Directly</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Direct Customer & Guest Consultation Enquiry */}
         {activeTab === "portal" && (
           <div className="p-6 sm:p-8">
             {submittedRef ? (
@@ -142,7 +311,7 @@ export default function LoginPage() {
                     Your Royal Request is Recorded
                   </h3>
                   <p className="text-xs text-navy/70 max-w-md mx-auto mt-1 leading-relaxed">
-                    Thank you, <strong className="text-navy">{name}</strong>. Your celebration query has been delivered to the lead concierge team.
+                    Thank you, <strong className="text-navy">{name}</strong>. Your destination wedding requirements have been dispatched to our agency partners.
                   </p>
                 </div>
 
@@ -168,19 +337,22 @@ export default function LoginPage() {
                     Submit Another Query
                   </button>
 
-                  <Link href="/" className="px-4 py-2 text-xs font-semibold text-navy hover:underline">
-                    Go to Overview
-                  </Link>
+                  <button
+                    onClick={() => setActiveTab("staff")}
+                    className="px-4 py-2 text-xs font-semibold text-navy hover:underline"
+                  >
+                    Back to Sign In
+                  </button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleInquirySubmit} className="space-y-4 text-xs">
                 <div>
                   <h3 className="text-lg font-serif font-bold text-navy">
-                    Palatial Query & Guest Request Desk
+                    Online Palatial Wedding Enquiry
                   </h3>
                   <p className="text-xs text-navy/60">
-                    Submit wedding dates, palace booking questions, or special banquet requests.
+                    Direct consultation request for palace celebrations in Jaipur, Udaipur, and beyond.
                   </p>
                 </div>
 
@@ -198,25 +370,26 @@ export default function LoginPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { key: "couple_inquiry", label: "Prospective Couple" },
-                      { key: "guest_request", label: "Invited Guest" },
-                      { key: "general_query", label: "General Query" },
-                    ].map((t) => (
+                      { key: "guest_request", label: "Wedding Guest" },
+                      { key: "general_query", label: "Media / Vendor" },
+                    ].map((type) => (
                       <button
+                        key={type.key}
                         type="button"
-                        key={t.key}
-                        onClick={() => setInquiryType(t.key as any)}
-                        className={`p-2 rounded-xl text-center font-semibold text-[11px] border transition-all ${
-                          inquiryType === t.key
-                            ? "bg-navy text-gold border-gold shadow-sm font-bold"
-                            : "bg-gray-50 text-navy/70 border-gray-200 hover:bg-ivory"
+                        onClick={() => setInquiryType(type.key as any)}
+                        className={`p-2 rounded-xl text-center border font-semibold transition-all ${
+                          inquiryType === type.key
+                            ? "bg-navy text-gold border-gold/40 shadow-sm"
+                            : "bg-white text-navy/70 border-gray-200 hover:bg-gray-50"
                         }`}
                       >
-                        {t.label}
+                        {type.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
+                {/* Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-navy/70 mb-1">
@@ -224,11 +397,11 @@ export default function LoginPage() {
                     </label>
                     <input
                       type="text"
-                      required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Aanya Rathore"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-gold text-xs"
+                      required
+                      placeholder="e.g. Radhika & Sidharth"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold text-navy text-xs"
                     />
                   </div>
 
@@ -237,75 +410,86 @@ export default function LoginPage() {
                       Phone Number *
                     </label>
                     <input
-                      type="text"
-                      required
+                      type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      required
                       placeholder="+91 98290 12345"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-gold text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold text-navy text-xs"
                     />
                   </div>
                 </div>
 
+                {/* Email & Destination */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-navy/70 mb-1">
-                      Email Address
+                      Email Address (Optional)
                     </label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="couple@luxury.in"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-gold text-xs"
+                      placeholder="contact@example.com"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold text-navy text-xs"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-navy/70 mb-1">
-                      Target Destination
+                      Target Destination Palace
                     </label>
                     <select
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-gold text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold text-navy text-xs bg-white"
                     >
-                      <option value="Jaipur">Jaipur (Rambagh, Jai Mahal, Samode)</option>
+                      <option value="Jaipur">Jaipur (Rambagh, Fairmont, Samode)</option>
                       <option value="Udaipur">Udaipur (Lake Palace, Udaivilas, Jagmandir)</option>
-                      <option value="Jodhpur">Jodhpur (Umaid Bhawan)</option>
+                      <option value="Jodhpur">Jodhpur (Umaid Bhawan, Mehrangarh)</option>
+                      <option value="Jaisalmer">Jaisalmer (Suryagarh Fort)</option>
                     </select>
                   </div>
                 </div>
 
+                {/* Message */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-navy/70 mb-1">
-                    Your Query, Dietary Protocol, or Celebration Request *
+                    Your Requirements / Celebration Details *
                   </label>
                   <textarea
-                    rows={3}
-                    required
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Describe your desired dates, palace preferences, guest count, or dietary protocol (Jain, Sattvic)..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-gold text-xs"
+                    required
+                    rows={3}
+                    placeholder="Tell us about your wedding dates, guest expectations (300-600 guests), specific palace preferences, or special banqueting requests..."
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-gold text-navy text-xs"
                   />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("staff")}
+                    className="text-xs text-gray-500 hover:text-navy hover:underline"
+                  >
+                    ← Back to Sign In
+                  </button>
+
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full btn-gold py-3 px-4 flex items-center justify-center space-x-2 text-xs font-bold shadow-md disabled:opacity-50"
+                    className="btn-gold py-2.5 px-6 text-xs font-bold flex items-center space-x-2 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Transmitting Royal Request...</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                        <span>Sending Request...</span>
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4" />
-                        <span>Submit Palatial Request</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Submit Royal Enquiry</span>
                       </>
                     )}
                   </button>
@@ -315,82 +499,14 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Tab 2: Concierge Staff Login */}
-        {activeTab === "staff" && (
-          <div className="p-6 sm:p-8 space-y-6">
-            <div>
-              <h3 className="text-lg font-serif font-bold text-navy">
-                Palace Partner & Concierge Portal
-              </h3>
-              <p className="text-xs text-navy/60">
-                Select your verified partner identity to enter the operational management platform.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                { name: "Gayatri Devi", role: "Lead Royal Partner & Concierge", code: "GD" },
-                { name: "Raghavendra Singh", role: "Head of Logistics & Palace Protocol", code: "RS" },
-                { name: "Ananya Rathore", role: "Artisan Vendor Director", code: "AR" },
-              ].map((staff) => {
-                const isSelected = selectedStaff === staff.name;
-                return (
-                  <button
-                    type="button"
-                    key={staff.name}
-                    onClick={() => setSelectedStaff(staff.name)}
-                    className={`w-full p-4 rounded-2xl border text-left flex items-center justify-between transition-all ${
-                      isSelected
-                        ? "bg-navy text-ivory border-gold shadow-md ring-2 ring-gold/40"
-                        : "bg-white border-gray-200 text-navy hover:bg-ivory/60"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3.5">
-                      <div className={`w-10 h-10 rounded-full font-serif font-bold text-sm flex items-center justify-center border ${
-                        isSelected ? "bg-gold text-navy border-gold" : "bg-navy text-gold border-gold/40"
-                      }`}>
-                        {staff.code}
-                      </div>
-                      <div>
-                        <h4 className="font-serif font-bold text-sm">{staff.name}</h4>
-                        <p className={`text-xs ${isSelected ? "text-gold" : "text-gray-500"}`}>
-                          {staff.role}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      isSelected ? "border-gold bg-gold text-navy" : "border-gray-300"
-                    }`}>
-                      {isSelected && <span className="w-2 h-2 rounded-full bg-navy" />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleStaffEnter}
-                disabled={isEntering}
-                className="w-full btn-gold py-3 px-4 flex items-center justify-center space-x-2 text-xs font-bold shadow-md disabled:opacity-50"
-              >
-                {isEntering ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Authorizing Concierge Session...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Enter Concierge Dashboard</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Footer info */}
+        <div className="py-3 px-6 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+          <span>The Royal Knot Concierge OS • Version 2.4</span>
+          <span className="flex items-center space-x-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-gold-dark" />
+            <span>256-bit Encrypted Vault</span>
+          </span>
+        </div>
       </div>
     </div>
   );

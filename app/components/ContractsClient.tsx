@@ -56,7 +56,7 @@ export function ContractsClient({ initialContracts, weddingsList }: ContractsCli
   const weddingMap = new Map<string, string>();
   weddingsList.forEach((w) => weddingMap.set(w.id, w.title));
 
-  const filteredContracts = contracts.filter((c) => {
+  const filteredContracts = contracts.filter((c: any) => {
     if (selectedWeddingId !== "All" && c.wedding_id !== selectedWeddingId) return false;
     if (typeFilter !== "All" && c.contract_type !== typeFilter) return false;
     if (statusFilter !== "All" && c.status !== statusFilter) return false;
@@ -68,9 +68,9 @@ export function ContractsClient({ initialContracts, weddingsList }: ContractsCli
     return true;
   });
 
-  const totalValue = filteredContracts.reduce((sum, c) => sum + Number(c.contract_value || 0), 0);
-  const signedCount = filteredContracts.filter((c) => c.status === "Signed").length;
-  const draftCount = filteredContracts.filter((c) => c.status === "Draft" || c.status === "Sent").length;
+  const totalValue = filteredContracts.reduce((sum: number, c: any) => sum + Number((c as any).contract_value || 0), 0);
+  const signedCount = filteredContracts.filter((c: any) => c.status === "Signed").length;
+  const draftCount = filteredContracts.filter((c: any) => c.status === "Draft" || c.status === "Sent").length;
 
   async function handleStatusChange(contractId: string, nextStatus: any) {
     setUpdatingId(contractId);
@@ -283,12 +283,12 @@ export function ContractsClient({ initialContracts, weddingsList }: ContractsCli
 
                     <td className="py-3.5">
                       <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-navy">
-                        {c.contract_type}
+                        {(c as any).contract_type || "Agreement"}
                       </span>
                     </td>
 
                     <td className="py-3.5 text-right font-bold text-navy font-mono">
-                      {formatINR(c.contract_value)}
+                      {formatINR((c as any).contract_value || 0)}
                     </td>
 
                     <td className="py-3.5 text-center">

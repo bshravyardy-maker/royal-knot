@@ -107,7 +107,19 @@ export function AddQuoteModal({
       } else {
         setIsLoading(false);
         onClose();
-        if (onQuoteAdded) onQuoteAdded(res.data);
+        if (onQuoteAdded) {
+          const selectedVendor = vendorsList.find((v) => v.id === vendorId);
+          const fullQuote = {
+            ...(res.data as any),
+            vendor: (res.data as any)?.vendor || selectedVendor || { name: "Artisan Vendor", city: "Rajasthan" },
+            inclusions: selectedInclusions,
+            total: computedTotal,
+            price_per_plate: currentPriceNum,
+            extra_hour_rate: Number(extraHourRate) || 0,
+            status: "Submitted",
+          };
+          onQuoteAdded(fullQuote);
+        }
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

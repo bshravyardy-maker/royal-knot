@@ -130,13 +130,9 @@ export function QuoteRequestListClient({
                     >
                       {req.status}
                     </span>
-                    {req.is_demo ? (
-                      <DemoBadge />
-                    ) : (
-                      <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        Live Tender
-                      </span>
-                    )}
+                    <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Procurement RFP
+                    </span>
                   </div>
 
                   {/* Category Title */}

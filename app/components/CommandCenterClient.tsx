@@ -163,7 +163,7 @@ export function CommandCenterClient({
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-navy">
               Day-of Command Center
             </h1>
-            {selectedWedding?.is_demo ? <DemoBadge /> : <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">Live</span>}
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">Active</span>
           </div>
           <p className="text-sm text-gray-500 mt-1">
             {selectedWedding?.venue || "Palatial Heritage Estate"} • {selectedWedding?.city || "Rajasthan"}
@@ -377,8 +377,8 @@ export function CommandCenterClient({
                               {item.title || item.event_name}
                             </span>
 
-                            {/* Demo/Live Badge */}
-                            {item.is_demo ? <DemoBadge /> : <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Live</span>}
+                            {/* Schedule Status */}
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Scheduled</span>
 
                             {/* LATE Badge: Computed in Red */}
                             {item.isLate && (
@@ -548,7 +548,7 @@ export function CommandCenterClient({
                           {isOpen ? "Open" : "Resolved"}
                         </span>
 
-                        {inc.is_demo ? <DemoBadge /> : <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Live</span>}
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-700">Incident</span>
                       </div>
 
                       {/* Logged timestamp */}

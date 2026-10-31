@@ -1027,25 +1027,24 @@ async function runSeed() {
     if (wIdx === 0) {
       // LOSS 1: "Royal Rajvilas Winter Vivah" -> Driver: Vendor Overrun
       // contract_value = 8,500,000.
-      // agreed total = ~5,500,000.
-      // We issue bills with a massive 3.6 Million overrun -> total bills = 9,150,000.
-      // Profit = 8.5M - 9.15M - 0.22M (team) = -870,000. Loss reason: 'Vendor overrun'.
+      // Total vendor bills = 9,800,000 (Overrun = ~4.2M over agreed ~5.5M).
+      // Team cost = 231,500. Absorbed extras = 0.
+      // Total costs = 9,800,000 + 231,500 = 10,031,500. Profit = -1,531,500. Loss reason: 'Vendor overrun'.
+      const perVendorOverrunBill = Math.round(9800000 / (attachedVendors.length || 1));
       for (const wv of attachedVendors) {
-        // Boost bill by +65% overrun
-        const billAmt = Math.round(wv.agreed_amount * 1.65);
         vendorBillsToInsert.push({
           wedding_vendor_id: wv.id,
-          amount: billAmt,
-          note: "Includes massive scope expansion, extra staff overtime, and rush holiday rates",
+          amount: perVendorOverrunBill,
+          note: "Includes emergency scope expansion, structural rigging, and holiday overtime",
           is_demo: true,
         });
       }
     } else if (wIdx === 1) {
       // LOSS 2: "Lake Palace Monsoon Nuptials" -> Driver: Absorbed Extras
       // contract_value = 9,000,000.
-      // Vendor bills match agreed (~5.8M).
-      // Absorbed extras (client_billable = false) = 3,600,000!
-      // Total cost = 5.8M + 3.6M + 0.22M = 9.62M. Profit = -620,000. Loss reason: 'Absorbed extras'.
+      // Vendor bills match agreed (~4.1M).
+      // Absorbed extras (client_billable = false) = 5,500,000!
+      // Total cost = ~4.1M + 5.5M + 0.231M = ~9.83M. Profit = -830,000. Loss reason: 'Absorbed extras'.
       for (const wv of attachedVendors) {
         vendorBillsToInsert.push({
           wedding_vendor_id: wv.id,
@@ -1054,21 +1053,20 @@ async function runSeed() {
           is_demo: true,
         });
       }
-      // Non-billable absorbed charges:
       extraChargesToInsert.push(
         {
           wedding_id: wedding.id,
-          description: "Unplanned Waterproof Glass Courtyard Canopy & Structural Trussing during Monsoon Gale (Absorbed by Agency)",
+          description: "Unplanned Waterproof Glass Courtyard Canopy & Structural Monsoon Gale Trussing (Absorbed by Agency)",
           qty: 1,
-          unit_price: 2400000,
+          unit_price: 3500000,
           client_billable: false,
           is_demo: true,
         },
         {
           wedding_id: wedding.id,
-          description: "Emergency Acoustic Baffle Replacements & High-Capacity Water Pumps (Absorbed by Agency)",
+          description: "Emergency Acoustic Baffle Replacements & High-Capacity Flood Water Pumps (Absorbed by Agency)",
           qty: 1,
-          unit_price: 1200000,
+          unit_price: 2000000,
           client_billable: false,
           is_demo: true,
         }
@@ -1076,10 +1074,10 @@ async function runSeed() {
     } else if (wIdx === 2) {
       // LOSS 3: "Amber Fort Heritage Durbar Wedding" -> Driver: Excessive Team Hours
       // contract_value = 6,500,000.
-      // Vendor bills match agreed (~4.2M).
+      // Vendor bills match agreed (~2.95M).
       // Absorbed extras = 0.
-      // Team logs 1,200 hours across team = ~2,500,000 in team costs!
-      // Total cost = 4.2M + 2.5M = 6.7M. Profit = -200,000. Loss reason: 'Team hours'.
+      // Team logs 1,900 hours across team = 4,000,000 in team costs!
+      // Total cost = 2.95M + 4.0M = 6.95M. Profit = -450,000. Loss reason: 'Team hours'.
       for (const wv of attachedVendors) {
         vendorBillsToInsert.push({
           wedding_vendor_id: wv.id,
@@ -1088,23 +1086,22 @@ async function runSeed() {
           is_demo: true,
         });
       }
-      gayatriHours = 350; // 350 * 2500 = 875,000
-      raghavHours = 550;  // 550 * 2000 = 1,100,000
-      ananyaHours = 300;  // 300 * 1800 = 540,000
-      // Total team cost = 2,515,000!
+      gayatriHours = 600; // 600 * 2500 = 1,500,000
+      raghavHours = 800;  // 800 * 2000 = 1,600,000
+      ananyaHours = 500;  // 500 * 1800 = 900,000
+      // Total team cost = 4,000,000!
     } else if (wIdx === 3) {
       // LOSS 4: "Fateh Garh Sunset Regal Union" -> Driver: Combination (Overrun + Absorbed Extras)
       // contract_value = 8,000,000.
-      // agreed total = ~5,200,000.
-      // Vendor bills = 6,800,000 (+1,600,000 overrun).
-      // Absorbed extras = 1,500,000.
-      // Team cost = 220,000.
-      // Total cost = 6.8M + 1.5M + 0.22M = 8.52M. Profit = -520,000. Loss reason: 'Vendor overrun'.
+      // Total vendor bills = 7,600,000 (Overrun = ~2.8M over agreed 4.8M).
+      // Absorbed extras = 1,800,000.
+      // Team cost = 231,500.
+      // Total cost = 7.6M + 1.8M + 0.231M = 9,631,500. Profit = -1,631,500. Loss reason: 'Vendor overrun'.
+      const perVendorOverrunBill = Math.round(7600000 / (attachedVendors.length || 1));
       for (const wv of attachedVendors) {
-        const billAmt = Math.round(wv.agreed_amount * 1.30); // 30% overrun
         vendorBillsToInsert.push({
           wedding_vendor_id: wv.id,
-          amount: billAmt,
+          amount: perVendorOverrunBill,
           note: "Hilltop freight surcharge and equipment replacement fees",
           is_demo: true,
         });
@@ -1113,7 +1110,7 @@ async function runSeed() {
         wedding_id: wedding.id,
         description: "Emergency Mountain Road Landslide Clearing & Private Backup Generator Airlift (Absorbed by Agency)",
         qty: 1,
-        unit_price: 1500000,
+        unit_price: 1800000,
         client_billable: false,
         is_demo: true,
       });
@@ -1224,9 +1221,92 @@ async function runSeed() {
   }
   await batchInsert("wedding_tasks", tasksToInsert);
 
-  // 11. Day-of Command Center: 14 Schedule Items & Live Incident for Today's Wedding
-  console.log("• Seeding Day-of Command Center Run-sheet for Today's Wedding...");
-  const todayWedding = createdWeddings[15]; // Wedding 15 is today's wedding
+  // 10B. Seed Realistic Palace Guests for Weddings
+  console.log("• Provisioning Realistic Guest Roster & RSVPs across Weddings...");
+  const guestRosterTemplates = [
+    { name: "Maharaja Gaj Singh II", email: "gajsingh@heritagepalaces.in", phone: "+91 98290 11001", rsvp: "Attending", is_vip: true, room: "Maharaja Royal Suite 101", table: "T-01 (Head Royal)", diet: "Jain Pure Vegetarian" },
+    { name: "Princess Diya Kumari", email: "diya@jaipurroyal.in", phone: "+91 98290 11002", rsvp: "Attending", is_vip: true, room: "Zenana Palace Villa 01", table: "T-01 (Head Royal)", diet: "Pure Vegetarian" },
+    { name: "Kumar Lakshyaraj Singh", email: "lakshyaraj@mewarpalace.in", phone: "+91 98290 11003", rsvp: "Attending", is_vip: true, room: "Mewar Sovereign Suite", table: "T-01 (Head Royal)", diet: "Traditional Rajput Feast" },
+    { name: "Ambassador Emmanuel Lenain", email: "e.lenain@diplomatie.gouv.fr", phone: "+91 98100 22004", rsvp: "Attending", is_vip: true, room: "Lakefront Pavilion Suite 202", table: "T-02 (Diplomatic Envoy)", diet: "Halal / French Culinary Protocol" },
+    { name: "Vikramaditya & Gayatri Birla", email: "v.birla@adityabirla.com", phone: "+91 98200 33005", rsvp: "Attending", is_vip: true, room: "Aravalli Presidential Villa", table: "T-03 (Family Dignitaries)", diet: "Pure Vegetarian / Low Sodium" },
+    { name: "Sunita & Arvind Singhania", email: "arvind@singhania.in", phone: "+91 98200 44006", rsvp: "Attending", is_vip: true, room: "Haveli Deluxe Suite 14", table: "T-03 (Family Dignitaries)", diet: "Jain Dedicated Kitchen" },
+    { name: "Rohan & Meera Kapoor", email: "rohan.kapoor@capital.in", phone: "+91 98111 55007", rsvp: "Attending", is_vip: false, room: "Courtyard Deluxe Room 204", table: "T-05", diet: "None" },
+    { name: "Col. Jaideep Rathore (Retd)", email: "jaideep.rathore@indianarmy.nic.in", phone: "+91 98291 66008", rsvp: "Attending", is_vip: false, room: "Fort Bastion Guest Wing 04", table: "T-04", diet: "Gluten-Free" },
+    { name: "Dr. Ayesha Al-Qasimi", email: "ayesha@al-qasimi.ae", phone: "+971 50 123 4567", rsvp: "Attending", is_vip: true, room: "Durbar Luxury Suite 08", table: "T-02 (Diplomatic Envoy)", diet: "Strict Halal" },
+    { name: "Nikhil & Tanya Merchant", email: "tanya@merchantfin.com", phone: "+91 98210 77009", rsvp: "Pending", is_vip: false, room: "Terrace Garden Suite 21", table: "T-06", diet: "Vegan" },
+    { name: "Aditya & Priya Mittal", email: "aditya.mittal@mittalholdings.com", phone: "+91 98201 88010", rsvp: "Attending", is_vip: true, room: "Grand Heritage Suite 10", table: "T-03 (Family Dignitaries)", diet: "Pure Vegetarian" },
+    { name: "Siddharth Oberoi", email: "siddharth@oberoiventures.com", phone: "+91 98102 99011", rsvp: "Declined", is_vip: false, room: "Deluxe Wing 402", table: "T-08", diet: "None" },
+    { name: "Kavita & Rajesh Jhunjhunwala", email: "rajesh@rareenterprises.in", phone: "+91 98202 11012", rsvp: "Attending", is_vip: true, room: "Royal Lakeside Pavilions 03", table: "T-01 (Head Royal)", diet: "Jain Dedicated Kitchen" },
+    { name: "Manish Malhotra", email: "manish@manishmalhotra.in", phone: "+91 98203 22013", rsvp: "Attending", is_vip: true, room: "Designer Imperial Suite 01", table: "T-02 (Diplomatic Envoy)", diet: "Organic Farm-to-Table" },
+    { name: "Gaurav & Shweta Goenka", email: "g.goenka@goenkagroup.com", phone: "+91 98300 33014", rsvp: "Attending", is_vip: false, room: "Heritage Suite 108", table: "T-04", diet: "Low Sugar" },
+    { name: "Devendra & Malini Scindia", email: "devendra@scindiaestates.in", phone: "+91 98260 44015", rsvp: "Attending", is_vip: true, room: "Palace Durbar Suite", table: "T-01 (Head Royal)", diet: "Traditional Rajput Feast" },
+    { name: "Varun & Kriti Sanon Party", email: "mgmt@sanon.in", phone: "+91 98204 55016", rsvp: "Attending", is_vip: true, room: "Luxury Safari Tents 05", table: "T-07 (Celebrity Delegation)", diet: "High Protein" },
+    { name: "Harsh & Radhika Piramal", email: "harsh@piramal.com", phone: "+91 98205 66017", rsvp: "Attending", is_vip: true, room: "Mewar Royal Wing 12", table: "T-03 (Family Dignitaries)", diet: "Pure Vegetarian" },
+    { name: "Aarav Somani", email: "aarav@somani.in", phone: "+91 98103 77018", rsvp: "Pending", is_vip: false, room: "Courtyard Room 102", table: "T-05", diet: "None" },
+    { name: "Zoya & Farhan Akhtar", email: "zoya@tigerbaby.in", phone: "+91 98206 88019", rsvp: "Attending", is_vip: true, room: "Royal Sunset Suite 04", table: "T-07 (Celebrity Delegation)", diet: "Vegan / Dairy-Free" },
+  ];
+
+  const guestsToInsert: any[] = [];
+  // Determine which side the guest belongs to (alternating bride/groom sides)
+  const sides = ["Bride", "Groom", "Both", "Bride", "Groom"];
+  for (let wIdx = 0; wIdx < createdWeddings.length; wIdx++) {
+    const wedding = createdWeddings[wIdx];
+    const countForWedding = wIdx === 0 || wIdx === 15 ? guestRosterTemplates.length : 12;
+    for (let gIdx = 0; gIdx < countForWedding; gIdx++) {
+      const tmpl = guestRosterTemplates[gIdx % guestRosterTemplates.length];
+      guestsToInsert.push({
+        wedding_id: wedding.id,
+        name: tmpl.name,
+        rsvp_status: tmpl.rsvp,
+        side: sides[gIdx % sides.length],
+        is_demo: true,
+      });
+    }
+  }
+  await batchInsert("guests", guestsToInsert);
+
+  // 10C. Seed Digital Contracts Vault across Weddings
+  console.log("• Provisioning Digital Contracts & Legal Agreements Vault...");
+  const contractsToInsert: any[] = [];
+  for (let wIdx = 0; wIdx < createdWeddings.length; wIdx++) {
+    const wedding = createdWeddings[wIdx];
+    const isCompleted = weddingsRawData[wIdx].status === "Completed";
+    const isInProgress = weddingsRawData[wIdx].status === "In Progress";
+    const cVal = wedding.contract_value || 8000000;
+
+    // 1. Client Service Master Agreement
+    contractsToInsert.push({
+      wedding_id: wedding.id,
+      title: `Palatial Wedding Service Master Agreement — ${wedding.title}`,
+      status: isCompleted || isInProgress ? "Signed" : "Sent",
+      signed_at: isCompleted || isInProgress ? datePast(90) : null,
+      is_demo: true,
+    });
+
+    // 2. Palace Venue Booking Lease
+    contractsToInsert.push({
+      wedding_id: wedding.id,
+      title: `Exclusive Palace Estate Lease & Durbar Agreement — ${wedding.venue}`,
+      status: "Signed",
+      signed_at: datePast(120),
+      is_demo: true,
+    });
+
+    // 3. Vendor Master Catering SLA
+    contractsToInsert.push({
+      wedding_id: wedding.id,
+      title: `Artisan Shahi Feast & Banqueting Master SLA — ${wedding.title}`,
+      status: isCompleted ? "Signed" : isInProgress ? "Signed" : "Draft",
+      signed_at: isCompleted || isInProgress ? datePast(60) : null,
+      is_demo: true,
+    });
+  }
+  await batchInsert("contracts", contractsToInsert);
+
+  // 11. Day-of Command Center: Schedule Items & Incidents for Weddings
+  console.log("• Seeding Day-of Command Center Run-sheets...");
+  const commandCenterWeddings = [createdWeddings[0], createdWeddings[15]];
+  const todayWedding = createdWeddings[15]; // wedding_date = today
 
   const vendorDJ = createdVendors.find((v: any) => v.category === "Music and DJ") || createdVendors[16];
   const vendorFlorist = createdVendors.find((v: any) => v.category === "Decor & Florals") || createdVendors[8];
@@ -1236,7 +1316,7 @@ async function runSeed() {
   const vendorPhotography = createdVendors.find((v: any) => v.category === "Photography") || createdVendors[22];
 
   const nowMs = Date.now();
-  const scheduleItemsData = [
+  const scheduleItemTemplates = [
     {
       wedding_id: todayWedding.id,
       title: "Royal Vintage Chariot Barat Delivery",
@@ -1420,20 +1500,42 @@ async function runSeed() {
       is_demo: true,
     },
   ];
-  await batchInsert("schedule_items", scheduleItemsData);
 
-  // Live High-Severity Incident for Today's Wedding
-  const incidentData = [
-    {
-      wedding_id: todayWedding.id,
-      title: "Florist needs a generator for mandap lighting",
-      severity: "High",
-      status: "Open",
-      owner_id: createdTeam[1].id,
-      resolution: null,
-      is_demo: true,
-    },
-  ];
+  const scheduleItemsData: any[] = [];
+  const incidentData: any[] = [];
+
+  for (const wed of commandCenterWeddings) {
+    if (!wed) continue;
+    for (const tmpl of scheduleItemTemplates) {
+      scheduleItemsData.push({
+        ...tmpl,
+        wedding_id: wed.id,
+      });
+    }
+
+    incidentData.push(
+      {
+        wedding_id: wed.id,
+        title: "Florist needs a generator for mandap lighting",
+        severity: "High",
+        status: "Open",
+        owner_id: createdTeam[1].id,
+        resolution: null,
+        is_demo: true,
+      },
+      {
+        wedding_id: wed.id,
+        title: "VIP Courtyard High Tea Ice Sculptures Delayed in Transit",
+        severity: "Medium",
+        status: "Resolved",
+        owner_id: createdTeam[2].id,
+        resolution: "Cold storage transport van escorted with palace police clearance",
+        is_demo: true,
+      }
+    );
+  }
+
+  await batchInsert("schedule_items", scheduleItemsData);
   await batchInsert("incidents", incidentData);
 
   // 12. Quote Requests & Vendor Quotes (1 Open with 3 Caterer Quotes, 1 Closed with Awarded Quote)

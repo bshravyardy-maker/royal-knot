@@ -52,7 +52,7 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
   const [formError, setFormError] = useState<string | null>(null);
 
   // Filter guests
-  const filteredGuests = guests.filter((g) => {
+  const filteredGuests = guests.filter((g: any) => {
     if (selectedWeddingId !== "All" && g.wedding_id !== selectedWeddingId) return false;
     if (statusFilter !== "All" && g.rsvp_status !== statusFilter) return false;
     if (vipOnly && !g.is_vip) return false;
@@ -61,7 +61,8 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
       return (
         g.name.toLowerCase().includes(q) ||
         (g.phone && g.phone.toLowerCase().includes(q)) ||
-        (g.room_allocation && g.room_allocation.toLowerCase().includes(q))
+        (g.room_allocation && g.room_allocation.toLowerCase().includes(q)) ||
+        (g.side && g.side.toLowerCase().includes(q))
       );
     }
     return true;
@@ -69,14 +70,14 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
 
   // KPI Calculations
   const relevantGuests = selectedWeddingId !== "All"
-    ? guests.filter((g) => g.wedding_id === selectedWeddingId)
+    ? guests.filter((g: any) => g.wedding_id === selectedWeddingId)
     : guests;
 
   const totalInvited = relevantGuests.length;
-  const attendingCount = relevantGuests.filter((g) => g.rsvp_status === "Attending").length;
-  const pendingCount = relevantGuests.filter((g) => g.rsvp_status === "Pending").length;
-  const declinedCount = relevantGuests.filter((g) => g.rsvp_status === "Declined").length;
-  const vipCount = relevantGuests.filter((g) => g.is_vip).length;
+  const attendingCount = relevantGuests.filter((g: any) => g.rsvp_status === "Attending").length;
+  const pendingCount = relevantGuests.filter((g: any) => g.rsvp_status === "Pending").length;
+  const declinedCount = relevantGuests.filter((g: any) => g.rsvp_status === "Declined").length;
+  const vipCount = relevantGuests.filter((g: any) => g.is_vip).length;
 
   async function handleToggleRsvp(guestId: string, current: string) {
     const next = current === "Attending" ? "Declined" : current === "Declined" ? "Pending" : "Attending";
@@ -319,7 +320,7 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                         <span className="font-serif font-bold text-navy text-sm">
                           {guest.name}
                         </span>
-                        {guest.is_vip && (
+                        {(guest as any).is_vip && (
                           <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
                             <Crown className="w-2.5 h-2.5 mr-0.5 text-gold-dark" />
                             VIP
@@ -327,9 +328,9 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                         )}
                         {guest.is_demo ? <DemoBadge /> : null}
                       </div>
-                      {guest.notes && (
+                      {(guest as any).notes && (
                         <div className="text-[10px] text-gray-400 mt-0.5 truncate max-w-xs">
-                          {guest.notes}
+                          {(guest as any).notes}
                         </div>
                       )}
                     </td>
@@ -337,12 +338,12 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                     <td className="py-3.5 text-gray-600 whitespace-nowrap">
                       <div className="flex items-center space-x-1">
                         <Phone className="w-3 h-3 text-gray-400" />
-                        <span>{guest.phone}</span>
+                        <span>{(guest as any).phone || (guest as any).side || "—"}</span>
                       </div>
-                      {guest.email && (
+                      {(guest as any).email && (
                         <div className="flex items-center space-x-1 text-[10px] text-gray-400 mt-0.5">
                           <Mail className="w-3 h-3 text-gray-400" />
-                          <span className="truncate max-w-[140px]">{guest.email}</span>
+                          <span className="truncate max-w-[140px]">{(guest as any).email}</span>
                         </div>
                       )}
                     </td>
@@ -368,10 +369,10 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                     </td>
 
                     <td className="py-3.5 text-navy font-sans">
-                      {guest.room_allocation ? (
+                      {(guest as any).room_allocation ? (
                         <div className="inline-flex items-center space-x-1 text-gray-700 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
                           <Hotel className="w-3 h-3 text-gold" />
-                          <span>{guest.room_allocation}</span>
+                          <span>{(guest as any).room_allocation}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400 italic">Day guest</span>
@@ -379,20 +380,20 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                     </td>
 
                     <td className="py-3.5 text-gray-600">
-                      {guest.table_number ? (
+                      {(guest as any).table_number ? (
                         <span className="font-semibold text-navy">
-                          Table {guest.table_number}
+                          Table {(guest as any).table_number}
                         </span>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-gray-400">{(guest as any).side ? `${(guest as any).side} Side` : "—"}</span>
                       )}
                     </td>
 
                     <td className="py-3.5">
-                      {guest.dietary_requirements ? (
+                      {(guest as any).dietary_requirements ? (
                         <span className="inline-flex items-center text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                           <Utensils className="w-2.5 h-2.5 mr-1 text-emerald-600" />
-                          {guest.dietary_requirements}
+                          {(guest as any).dietary_requirements}
                         </span>
                       ) : (
                         <span className="text-gray-400">Standard Shahi</span>

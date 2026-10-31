@@ -60,7 +60,7 @@ The platform eliminates fragmented communication channels, spreadsheets, and man
 - **Double-Payment Guard:** Transaction-level payment validation (`pay_vendor`) ensuring vendor payments never exceed outstanding balances.
 - **Extra Charges Classification:** Separation between client-billable additions and agency-absorbed emergency costs.
 
-### 7. Founder Analytics & Season P&L
+### 11. Founder Analytics & Season P&L
 - **Unit Economics (P&L):** Accurate per-wedding profit and margin calculations factoring vendor bills, absorbed extras, and logged team hours.
 - **Loss Driver Attribution:** Automatic root-cause detection (*Vendor Overrun, Absorbed Extras, Team Hours*) for underperforming celebrations.
 - **Vendor Scorecards:** Performance metrics tracking vendor punctuality, billing variance percentages, and ratings.
