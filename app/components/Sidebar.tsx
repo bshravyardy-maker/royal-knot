@@ -33,7 +33,7 @@ export const navigationItems = [
   { name: "Vendor Quotes", href: "/vendor-quotes", icon: FileSpreadsheet, isImplemented: true },
   { name: "Wedding Tasks", href: "/wedding-tasks", icon: CheckSquare, isImplemented: true },
   { name: "Guest Management", href: "/guests", icon: Users, isImplemented: false },
-  { name: "Day-of Command Center", href: "/command-center", icon: Compass, isImplemented: false },
+  { name: "Day-of Command Center", href: "/command-center", icon: Compass, isImplemented: true },
   { name: "Contracts", href: "/contracts", icon: FileSignature, isImplemented: false },
   { name: "Payments & Expenses", href: "/payments", icon: CreditCard, isImplemented: false },
   { name: "Analytics & Reports", href: "/analytics", icon: BarChart3, isImplemented: false },

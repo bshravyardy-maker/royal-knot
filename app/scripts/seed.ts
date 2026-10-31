@@ -249,7 +249,7 @@ async function runSeed() {
       is_demo: true,
     },
   ];
-  await execOrDie("vendors", "insert vendors", supabase.from("vendors").insert(vendorsData));
+  const createdVendors = await execOrDie("vendors", "insert vendors", supabase.from("vendors").insert(vendorsData).select());
 
   // 5. 30 Task Templates across 7 phases
   console.log("• Seeding 30 Palatial Task Templates...");
@@ -406,11 +406,12 @@ async function runSeed() {
 
   // 7. 8 Palatial Weddings
   console.log("• Seeding 8 Palatial Weddings...");
+  const todayDateStr = new Date().toISOString().split("T")[0];
   const weddingsData = [
     {
-      title: "Sharma & Singhania Royal Wedding",
-      wedding_date: "2026-11-15",
-      wedding_end_date: "2026-11-17",
+      title: "Sharma & Singhania Royal Vivah (Today's Live Run-sheet)",
+      wedding_date: todayDateStr,
+      wedding_end_date: todayDateStr,
       city: "Jaipur",
       venue: "Rambagh Palace, Jaipur",
       guest_count: 450,
@@ -418,7 +419,7 @@ async function runSeed() {
       contract_value: 7500000,
       status: "Confirmed",
       theme: "Palace Romance & Royal Florals",
-      notes: "3-day high society celebration with royal high tea and fireworks display.",
+      notes: "3-day high society celebration with royal high tea and fireworks display. Active celebration today!",
       is_demo: true,
     },
     {
@@ -654,7 +655,225 @@ async function runSeed() {
   await execOrDie("expenses", "insert expenses", supabase.from("expenses").insert(expensesToInsert));
   await execOrDie("wedding_tasks", "insert wedding_tasks", supabase.from("wedding_tasks").insert(tasksToInsert));
 
-  // 9. Verification & Row Counts Summary
+  // 9. Day-of Command Center: Schedule Items & Incident for Today's Wedding
+  console.log("• Seeding Day-of Command Center (14 Schedule Items & Live Incident)...");
+  const todayWedding = createdWeddings[0];
+
+  const vendorDJ = createdVendors.find((v: any) => v.name.includes("Jagmandir Sound")) || createdVendors[6];
+  const vendorFlorist = createdVendors.find((v: any) => v.name.includes("Rajputana Decor")) || createdVendors[0];
+  const vendorCatering = createdVendors.find((v: any) => v.name.includes("Mewar Shahi Bawarchi")) || createdVendors[1];
+  const vendorVintageWheels = createdVendors.find((v: any) => v.name.includes("Vintage Wheels")) || createdVendors[4];
+  const vendorDesertSymphony = createdVendors.find((v: any) => v.name.includes("Desert Symphony")) || createdVendors[3];
+  const vendorPhotography = createdVendors.find((v: any) => v.name.includes("Royal Lens")) || createdVendors[2];
+
+  const teamGayatri = createdTeam.find((t: any) => t.name.includes("Gayatri")) || createdTeam[0];
+  const teamRaghavendra = createdTeam.find((t: any) => t.name.includes("Raghavendra")) || createdTeam[1];
+  const teamAnanya = createdTeam.find((t: any) => t.name.includes("Ananya")) || createdTeam[2];
+
+  const nowMs = Date.now();
+  const scheduleItemsData = [
+    {
+      wedding_id: todayWedding.id,
+      title: "Royal Vintage Chariot Barat Delivery",
+      event_name: "Royal Vintage Chariot Barat Delivery",
+      venue_sublocation: "Palace Outer Gate",
+      scheduled_time: new Date(nowMs - 50 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs - 50 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorVintageWheels?.id || null,
+      responsible_member_id: teamRaghavendra?.id || null,
+      status: "Done",
+      arrived_at: new Date(nowMs - 55 * 60 * 1000).toISOString(), // Arrived early
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Shehnai & Nagada Folk Troupe Welcoming",
+      event_name: "Shehnai & Nagada Folk Troupe Welcoming",
+      venue_sublocation: "Toran Gateway Arch",
+      scheduled_time: new Date(nowMs - 35 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs - 35 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorDesertSymphony?.id || null,
+      responsible_member_id: teamAnanya?.id || null,
+      status: "Done",
+      arrived_at: new Date(nowMs - 40 * 60 * 1000).toISOString(), // Arrived
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Royal DJ & Sound Array Check-in",
+      event_name: "Royal DJ & Sound Array Check-in",
+      venue_sublocation: "Grand Courtyard Stage",
+      scheduled_time: new Date(nowMs - 20 * 60 * 1000).toISOString(), // 20m in past
+      start_time: new Date(nowMs - 20 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorDJ?.id || null,
+      responsible_member_id: teamRaghavendra?.id || null,
+      status: "Pending",
+      arrived_at: null, // NULL: LATE! 20 mins late
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Groom Grand Baraat Procession",
+      event_name: "Groom Grand Baraat Procession",
+      venue_sublocation: "Elephant Ramp to Palace Porch",
+      scheduled_time: new Date(nowMs + 15 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 15 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorVintageWheels?.id || null,
+      responsible_member_id: teamRaghavendra?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Toran Gate Welcome & Royal Milni Ceremony",
+      event_name: "Toran Gate Welcome & Royal Milni Ceremony",
+      venue_sublocation: "Zenana Courtyard Entrance",
+      scheduled_time: new Date(nowMs + 40 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 40 * 60 * 1000).toISOString(),
+      responsible_vendor_id: null,
+      responsible_member_id: teamGayatri?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Bridal Entry under Lotus Chhatri",
+      event_name: "Bridal Entry under Lotus Chhatri",
+      venue_sublocation: "Marble Corridor",
+      scheduled_time: new Date(nowMs + 65 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 65 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorFlorist?.id || null,
+      responsible_member_id: teamAnanya?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Varmala & Garland Exchange Ceremony",
+      event_name: "Varmala & Garland Exchange Ceremony",
+      venue_sublocation: "Central Lotus Pond Stage",
+      scheduled_time: new Date(nowMs + 90 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 90 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorFlorist?.id || null,
+      responsible_member_id: teamGayatri?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "High Tea & Shahi Refreshments",
+      event_name: "High Tea & Shahi Refreshments",
+      venue_sublocation: "Mughal Garden Pavilions",
+      scheduled_time: new Date(nowMs + 120 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 120 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorCatering?.id || null,
+      responsible_member_id: teamAnanya?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Sunset Vedic Pheras & Sacred Fire Rites",
+      event_name: "Sunset Vedic Pheras & Sacred Fire Rites",
+      venue_sublocation: "Mandapam on Lake Terrace",
+      scheduled_time: new Date(nowMs + 160 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 160 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorFlorist?.id || null,
+      responsible_member_id: teamGayatri?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Sindoor Khela & Mangalsutra Bandhan",
+      event_name: "Sindoor Khela & Mangalsutra Bandhan",
+      venue_sublocation: "Heritage Mandap",
+      scheduled_time: new Date(nowMs + 200 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 200 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorPhotography?.id || null,
+      responsible_member_id: teamGayatri?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Grand Shahi Buffet Service Inauguration",
+      event_name: "Grand Shahi Buffet Service Inauguration",
+      venue_sublocation: "Durbar Dining Hall",
+      scheduled_time: new Date(nowMs + 240 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 240 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorCatering?.id || null,
+      responsible_member_id: teamAnanya?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Folk Artists & Sufi Mehfil Performance",
+      event_name: "Folk Artists & Sufi Mehfil Performance",
+      venue_sublocation: "Courtyard Amphitheatre",
+      scheduled_time: new Date(nowMs + 280 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 280 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorDesertSymphony?.id || null,
+      responsible_member_id: teamRaghavendra?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Palace Terrace Fireworks Spectacular",
+      event_name: "Palace Terrace Fireworks Spectacular",
+      venue_sublocation: "Upper Bastion Skyline",
+      scheduled_time: new Date(nowMs + 320 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 320 * 60 * 1000).toISOString(),
+      responsible_vendor_id: null,
+      responsible_member_id: teamRaghavendra?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+    {
+      wedding_id: todayWedding.id,
+      title: "Vidaai Farewell & Vintage Rolls Royce Escort",
+      event_name: "Vidaai Farewell & Vintage Rolls Royce Escort",
+      venue_sublocation: "Grand Portico",
+      scheduled_time: new Date(nowMs + 360 * 60 * 1000).toISOString(),
+      start_time: new Date(nowMs + 360 * 60 * 1000).toISOString(),
+      responsible_vendor_id: vendorVintageWheels?.id || null,
+      responsible_member_id: teamGayatri?.id || null,
+      status: "Pending",
+      arrived_at: null,
+      is_demo: true,
+    },
+  ];
+
+  await execOrDie("schedule_items", "insert schedule_items", supabase.from("schedule_items").insert(scheduleItemsData));
+
+  // Incident: Florist needs a generator, severity High
+  const incidentData = [
+    {
+      wedding_id: todayWedding.id,
+      title: "Florist needs a generator for mandap lighting",
+      severity: "High",
+      status: "Open",
+      owner_id: teamRaghavendra?.id || createdTeam[0].id,
+      reported_by: teamRaghavendra?.id || createdTeam[0].id,
+      is_demo: true,
+    },
+  ];
+
+  await execOrDie("incidents", "insert incidents", supabase.from("incidents").insert(incidentData));
+
+  // 10. Verification & Row Counts Summary
   console.log("\n=======================================================");
   console.log("📊 THE ROYAL KNOT - SEED VERIFICATION SUMMARY");
   console.log("=======================================================");
@@ -667,6 +886,8 @@ async function runSeed() {
     "enquiries",
     "weddings",
     "wedding_tasks",
+    "schedule_items",
+    "incidents",
     "client_payments",
     "expenses",
   ];

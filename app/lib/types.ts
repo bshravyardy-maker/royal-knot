@@ -232,3 +232,56 @@ export interface OverviewMetrics {
   pipelineStages: { stage: Stage; count: number; value: number }[];
   upcomingWeddings: (Wedding & { couple_names?: string })[];
 }
+
+export interface ScheduleItem {
+  id: string;
+  wedding_id: string;
+  title: string;
+  event_name?: string;
+  venue_sublocation?: string;
+  scheduled_time: string;
+  start_time?: string;
+  end_time?: string;
+  responsible_vendor_id?: string | null;
+  responsible_member_id?: string | null;
+  status: 'Pending' | 'Live' | 'Done' | 'Delayed';
+  arrived_at?: string | null;
+  is_demo: boolean;
+  created_at: string;
+  updated_at: string;
+  vendor?: {
+    id: string;
+    name?: string;
+    business_name?: string;
+    category: string;
+    phone?: string;
+  } | null;
+  team_member?: {
+    id: string;
+    name: string;
+    role: string;
+    phone?: string;
+  } | null;
+}
+
+export interface Incident {
+  id: string;
+  wedding_id: string;
+  title: string;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: 'Open' | 'Resolved' | 'Reported' | 'Resolving';
+  owner_id?: string | null;
+  reported_by?: string | null;
+  resolution?: string | null;
+  resolution_notes?: string | null;
+  resolved_at?: string | null;
+  is_demo: boolean;
+  created_at: string;
+  updated_at: string;
+  owner?: {
+    id: string;
+    name: string;
+    role: string;
+  } | null;
+}
+
