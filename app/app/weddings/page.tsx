@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Wedding } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
@@ -163,9 +164,14 @@ export default async function WeddingsPage({
                   )}
                 </div>
 
-                <h3 className="text-xl font-serif font-bold text-navy mb-2">
-                  {w.title}
-                </h3>
+                <Link
+                  href={`/weddings/${w.id}`}
+                  className="group block hover:text-gold transition-colors"
+                >
+                  <h3 className="text-xl font-serif font-bold text-navy group-hover:text-gold-dark transition-colors mb-2">
+                    {w.title}
+                  </h3>
+                </Link>
 
                 {w.theme && (
                   <p className="text-xs text-[#8C7142] italic mb-4">
@@ -217,11 +223,15 @@ export default async function WeddingsPage({
                 </div>
               </div>
 
-              {w.notes && (
-                <div className="mt-4 pt-3 border-t border-gray-100 text-[11px] text-gray-500">
-                  <p className="truncate">{w.notes}</p>
-                </div>
-              )}
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                <p className="truncate max-w-[160px]">{w.notes || "Palatial Wedding"}</p>
+                <Link
+                  href={`/weddings/${w.id}`}
+                  className="font-semibold text-gold-dark hover:text-navy transition-colors inline-flex items-center ml-2 flex-shrink-0"
+                >
+                  <span>Milestones &rarr;</span>
+                </Link>
+              </div>
             </div>
           ))}
         </div>

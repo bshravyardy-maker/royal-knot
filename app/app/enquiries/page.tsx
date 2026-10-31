@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Enquiry } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
@@ -140,9 +141,14 @@ export default async function EnquiriesPage({
                 </div>
 
                 {/* Couple Names */}
-                <h3 className="text-xl font-serif font-bold text-navy leading-snug">
-                  {enquiry.couple_name}
-                </h3>
+                <Link
+                  href={`/enquiries/${enquiry.id}`}
+                  className="group block hover:text-gold transition-colors"
+                >
+                  <h3 className="text-xl font-serif font-bold text-navy group-hover:text-gold-dark transition-colors leading-snug">
+                    {enquiry.couple_name}
+                  </h3>
+                </Link>
 
                 {/* Theme & Package */}
                 <div className="flex flex-wrap gap-1.5 mt-2 mb-4">
@@ -208,11 +214,12 @@ export default async function EnquiriesPage({
                   <Phone className="w-3.5 h-3.5 mr-1 text-gray-400" />
                   {enquiry.phone}
                 </span>
-                {enquiry.source && (
-                  <span className="text-[10px] text-gray-400 italic">
-                    via {enquiry.source}
-                  </span>
-                )}
+                <Link
+                  href={`/enquiries/${enquiry.id}`}
+                  className="font-semibold text-gold-dark hover:text-navy transition-colors inline-flex items-center"
+                >
+                  <span>Agreement & Deposit &rarr;</span>
+                </Link>
               </div>
             </div>
           ))}

@@ -319,10 +319,13 @@ export default async function OverviewPage() {
                 {metrics.upcomingWeddings.map((wedding) => (
                   <tr key={wedding.id} className="hover:bg-ivory/60 transition-colors">
                     <td className="py-3.5 pl-2 font-serif text-sm font-semibold text-navy">
-                      <div className="flex items-center space-x-2">
+                      <Link
+                        href={`/weddings/${wedding.id}`}
+                        className="flex items-center space-x-2 hover:text-gold-dark transition-colors"
+                      >
                         <Building className="w-4 h-4 text-gold flex-shrink-0" />
                         <span className="truncate max-w-xs">{wedding.title}</span>
-                      </div>
+                      </Link>
                     </td>
                     <td className="py-3.5 text-navy/80 whitespace-nowrap">
                       <div className="flex items-center space-x-1.5">
