@@ -44,6 +44,7 @@ export function ConciergeAgencyTab({
   const [transportFilter, setTransportFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [passesData, setPassesData] = useState<any[]>([]);
+  const [needsMigration, setNeedsMigration] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -72,6 +73,9 @@ export function ConciergeAgencyTab({
       const res = await getAgencyConciergeDataAction(selectedWeddingId);
       if (res.success && res.data) {
         setPassesData(res.data.passes);
+        if (res.data.needsMigration !== undefined) {
+          setNeedsMigration(Boolean(res.data.needsMigration));
+        }
       }
       setIsLoading(false);
     }
@@ -216,6 +220,22 @@ export function ConciergeAgencyTab({
 
   return (
     <div className="space-y-6">
+      {/* Supabase Migration Notice Banner (if table not yet created) */}
+      {needsMigration && (
+        <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-amber-900 text-xs flex items-start space-x-3 shadow-xs">
+          <ShieldAlert className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-sm">Supabase Table Migration Required</p>
+            <p className="leading-relaxed text-amber-800">
+              The table <code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-900">public.guest_passports</code> has not been executed in your Supabase project yet.
+            </p>
+            <p className="text-[11px] text-amber-700">
+              To activate live database persistence for guest passports, paste and run <code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-900">supabase/migrations/20261101000009_royal_guest_concierge.sql</code> in your <strong>Supabase Dashboard &rarr; SQL Editor</strong>.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Concierge KPI Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="royal-card p-4 border-l-4 border-l-gold">

@@ -380,7 +380,7 @@ async function verifyStaffAuthorization(): Promise<ActionResult> {
  */
 export async function getAgencyConciergeDataAction(
   weddingId?: string
-): Promise<ActionResult<{ passes: any[]; summary: any }>> {
+): Promise<ActionResult<{ passes: any[]; summary: any; needsMigration?: boolean }>> {
   const auth = await verifyStaffAuthorization();
   if (!auth.success) return auth;
 
@@ -417,8 +417,15 @@ export async function getAgencyConciergeDataAction(
 
     const { data: passesRows, error } = await query;
     if (error) {
-      console.warn("Could not query guest_passports:", error.message);
-      return { success: true, data: { passes: [], summary: { totalPasses: 0, requestedPickups: 0, activePasses: 0 } } };
+      const isSchemaCache = error.message?.includes("schema cache");
+      return {
+        success: true,
+        data: {
+          passes: [],
+          summary: { totalPasses: 0, requestedPickups: 0, activePasses: 0 },
+          needsMigration: isSchemaCache,
+        },
+      };
     }
 
     const passes = passesRows || [];
@@ -435,6 +442,7 @@ export async function getAgencyConciergeDataAction(
           activePasses,
           requestedPickups,
         },
+        needsMigration: false,
       },
     };
   } catch (err: any) {
@@ -449,7 +457,7 @@ export async function getAgencyConciergeDataAction(
  */
 export async function generateOrGetGuestPassportAction(
   guestId: string
-): Promise<ActionResult<{ rawToken: string; passportId: string; passUrl: string }>> {
+): Promise<ActionResult<{ rawToken: string; passportId: string; passUrl: string; warning?: string }>> {
   const auth = await verifyStaffAuthorization();
   if (!auth.success) return auth;
 
@@ -496,7 +504,21 @@ export async function generateOrGetGuestPassportAction(
       .single();
 
     if (saveErr) {
-      console.error("generateOrGetGuestPassportAction save error:", saveErr);
+      console.warn("generateOrGetGuestPassportAction save notice:", saveErr.message);
+      if (saveErr.message?.includes("schema cache")) {
+        // Table not yet migrated in Supabase Dashboard.
+        // Return generated passport with informative warning so QR pass can still be previewed.
+        return {
+          success: true,
+          message: `Digital passport generated for ${guest.name} (Notice: Run migration 20261101000009_royal_guest_concierge.sql in Supabase SQL Editor to persist in database)`,
+          data: {
+            rawToken,
+            passportId: guest.id,
+            passUrl: `/passport/${rawToken}`,
+            warning: "Table guest_passports not found in Supabase schema cache. Run migration 20261101000009_royal_guest_concierge.sql in SQL Editor.",
+          },
+        };
+      }
       return { success: false, error: saveErr.message };
     }
 
