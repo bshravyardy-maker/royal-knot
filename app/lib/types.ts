@@ -295,3 +295,148 @@ export interface Incident {
   } | null;
 }
 
+export type TransportStatus = 'Not Required' | 'Requested' | 'Driver Assigned' | 'In Transit' | 'Completed';
+
+export interface GuestPassport {
+  id: string;
+  guest_id: string;
+  wedding_id: string;
+  token_hash: string;
+  welcome_message?: string;
+  airport_pickup_required: boolean;
+  arrival_flight_train?: string;
+  arrival_time?: string;
+  pickup_location?: string;
+  transport_status: TransportStatus;
+  assigned_driver_name?: string;
+  assigned_driver_phone?: string;
+  vehicle_details?: string;
+  departure_flight_train?: string;
+  departure_time?: string;
+  departure_transport_notes?: string;
+  meal_preference: string;
+  special_assistance?: string;
+  revoked: boolean;
+  revoked_at?: string;
+  expires_at: string;
+  last_accessed_at?: string;
+  is_demo: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined fields for view
+  guest?: {
+    id: string;
+    name: string;
+    party_size?: number;
+    side?: string;
+    rsvp_status: string;
+    dietary_notes?: string;
+    hotel_assigned?: string;
+    room_number?: string;
+  };
+  wedding?: {
+    id: string;
+    title: string;
+    wedding_date: string;
+    wedding_end_date?: string;
+    venue: string;
+    city: string;
+    couple_id?: string;
+    couple?: {
+      partner_1_name: string;
+      partner_2_name: string;
+    };
+  };
+}
+
+export interface WeddingItineraryItem {
+  id: string;
+  wedding_id: string;
+  day_number: number;
+  day_title: string;
+  event_name: string;
+  start_time: string;
+  end_time?: string;
+  venue_sublocation: string;
+  dress_code: string;
+  description?: string;
+  location_map_url?: string;
+  sort_order: number;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export interface GuestPortalData {
+  guest: {
+    id: string;
+    name: string;
+    party_size: number;
+    side: string;
+    rsvp_status: 'Pending' | 'Attending' | 'Declined';
+    dietary_notes?: string;
+    hotel_assigned?: string;
+    room_number?: string;
+  };
+  passport: {
+    id: string;
+    welcome_message?: string;
+    airport_pickup_required: boolean;
+    arrival_flight_train?: string;
+    arrival_time?: string;
+    pickup_location?: string;
+    transport_status: TransportStatus;
+    assigned_driver_name?: string;
+    assigned_driver_phone?: string;
+    vehicle_details?: string;
+    departure_flight_train?: string;
+    departure_time?: string;
+    departure_transport_notes?: string;
+    meal_preference: string;
+    special_assistance?: string;
+    expires_at: string;
+  };
+  wedding: {
+    id: string;
+    title: string;
+    wedding_date: string;
+    wedding_end_date?: string;
+    venue: string;
+    city: string;
+    couple_names: string;
+  };
+  itinerary: WeddingItineraryItem[];
+  conciergeContact: {
+    lead_name: string;
+    role: string;
+    phone: string;
+    email: string;
+    emergency_desk: string;
+  };
+}
+
+export interface GuestRsvpSubmission {
+  rsvp_status: 'Attending' | 'Declined';
+  meal_preference: string;
+  dietary_notes?: string;
+  special_assistance?: string;
+  airport_pickup_required?: boolean;
+  arrival_flight_train?: string;
+  departure_flight_train?: string;
+}
+
+export interface GuestTransportUpdate {
+  guest_id: string;
+  airport_pickup_required: boolean;
+  arrival_flight_train?: string;
+  arrival_time?: string;
+  pickup_location?: string;
+  transport_status: TransportStatus;
+  assigned_driver_name?: string;
+  assigned_driver_phone?: string;
+  vehicle_details?: string;
+  departure_flight_train?: string;
+  departure_time?: string;
+  departure_transport_notes?: string;
+}
+
+

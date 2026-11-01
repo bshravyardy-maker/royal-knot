@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
 // ------------------------------------------------------------------------------
@@ -136,6 +137,8 @@ async function runSeed() {
   // 1. Clean up demo rows in reverse foreign-key dependency order
   console.log("\n🧹 Cleaning up existing demo data in dependency order (is_demo = true)...");
   const cleanOrder = [
+    "guest_passports",
+    "wedding_itineraries",
     "share_tokens",
     "vendor_payments",
     "vendor_bills",
@@ -161,6 +164,13 @@ async function runSeed() {
   ];
 
   for (const table of cleanOrder) {
+    if (table === "guest_passports" || table === "wedding_itineraries") {
+      const { error } = await supabase.from(table).delete().eq("is_demo", true);
+      if (error && !error.message?.includes("schema cache")) {
+        console.warn(`   ⚠️ Warning cleaning demo ${table}:`, error.message);
+      }
+      continue;
+    }
     await execOrDie(
       table,
       "delete demo rows",
@@ -1318,6 +1328,126 @@ async function runSeed() {
     }
   }
   await batchInsert("guests", guestsToInsert);
+
+  // 10B-2. Seed Royal Guest Concierge: Multi-day Itineraries & Digital Passports
+  console.log("• Provisioning 3-Day Wedding Itineraries and Royal Concierge Passports...");
+  const itinerariesToInsert: any[] = [];
+  const itinerariesTemplate = [
+    {
+      day_number: 1,
+      day_title: "Day 1: Imperial Mehendi & Sufi Serenade",
+      event_name: "Palace Welcome & Sufi Mehfil",
+      start_time: "04:30 PM",
+      end_time: "08:30 PM",
+      sublocation: "Kesar Kyari Courtyard",
+      dress_code: "Royal Emeralds & Heritage Leheriya",
+      description: "Traditional henna application followed by live Sufi musical ensemble under the palace stars.",
+    },
+    {
+      day_number: 2,
+      day_title: "Day 2: Royal Sangeet & Shahi Banquet",
+      event_name: "Grand Sangeet & Folk Dancers",
+      start_time: "07:00 PM",
+      end_time: "11:30 PM",
+      sublocation: "Durbar Dining Hall & Gardens",
+      dress_code: "Imperial Velvets, Tuxedos & Heavy Zari",
+      description: "Cocktail reception, choreographed family dance performances, and 108-dish royal silver thali banquet.",
+    },
+    {
+      day_number: 3,
+      day_title: "Day 3: Shahi Vivah & Vidai Reception",
+      event_name: "Vedic Pheras & Royal Reception",
+      start_time: "05:00 PM",
+      end_time: "10:30 PM",
+      sublocation: "Lake Pavilion Mandap",
+      dress_code: "Traditional Shahi Safa & Crimson Silks",
+      description: "Solemn wedding vows around the holy fire, terrace fireworks, and dinner honoring the newly wed couple.",
+    },
+  ];
+
+  for (const wedding of createdWeddings) {
+    for (const item of itinerariesTemplate) {
+      itinerariesToInsert.push({
+        wedding_id: wedding.id,
+        day_number: item.day_number,
+        day_title: item.day_title,
+        event_name: item.event_name,
+        start_time: item.start_time,
+        end_time: item.end_time,
+        venue_sublocation: item.sublocation,
+        dress_code: item.dress_code,
+        description: item.description,
+        location_map_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(wedding.venue || "Jaipur")}`,
+        sort_order: item.day_number,
+        is_demo: true,
+      });
+    }
+  }
+
+  const { error: testItinErr } = await supabase.from("wedding_itineraries").select("id").limit(1);
+  if (!testItinErr) {
+    await batchInsert("wedding_itineraries", itinerariesToInsert);
+  } else {
+    console.log("   (wedding_itineraries table not yet migrated in Supabase; skipped seed insertion)");
+  }
+
+  // Provision Guest Passports for seeded demo guests
+  const { data: dbGuests } = await supabase
+    .from("guests")
+    .select("id, wedding_id, name, is_demo")
+    .eq("is_demo", true);
+
+  if (dbGuests && dbGuests.length > 0) {
+    const passportsToInsert: any[] = [];
+    const mealOptions = [
+      "Royal Rajputana Thali",
+      "Pure Vegetarian Satvik",
+      "Jain Specialty (No Root Vegetables)",
+      "Continental Gourmet",
+    ];
+    const drivers = [
+      { name: "Mukesh Sharma", phone: "+91 98290 88221", vehicle: "Toyota Crysta (RJ-14 TC 2026)" },
+      { name: "Surendra Singh", phone: "+91 98290 77112", vehicle: "Mercedes E-Class (RJ-14 DE 1100)" },
+      { name: "Ratan Lal Rathore", phone: "+91 98290 66334", vehicle: "Toyota Fortuner (RJ-14 AB 9988)" },
+    ];
+    const flights = ["AI-491 (Landing 02:30 PM)", "6E-204 (Landing 11:15 AM)", "UK-955 (Landing 04:45 PM)"];
+
+    for (let i = 0; i < dbGuests.length; i++) {
+      const g = dbGuests[i];
+      // Cryptographically random bearer token (never fixed or predictable)
+      const rawToken = crypto.randomBytes(24).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+      const hasPickup = i % 3 === 0;
+      const driver = drivers[i % drivers.length];
+      const flight = flights[i % flights.length];
+
+      passportsToInsert.push({
+        guest_id: g.id,
+        wedding_id: g.wedding_id,
+        token_hash: tokenHash,
+        welcome_message: `We are deeply honored to welcome you to the royal wedding celebration. Your presence graces our palace.`,
+        airport_pickup_required: hasPickup,
+        arrival_flight_train: hasPickup ? flight : null,
+        pickup_location: hasPickup ? "Jaipur International Airport (JAI)" : null,
+        transport_status: hasPickup ? "Driver Assigned" : "Not Required",
+        assigned_driver_name: hasPickup ? driver.name : null,
+        assigned_driver_phone: hasPickup ? driver.phone : null,
+        vehicle_details: hasPickup ? driver.vehicle : null,
+        meal_preference: mealOptions[i % mealOptions.length],
+        special_assistance: i % 7 === 0 ? "Wheelchair escort assistance at palace entrance" : null,
+        revoked: false,
+        expires_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+        is_demo: true,
+      });
+    }
+
+    const { error: testPassErr } = await supabase.from("guest_passports").select("id").limit(1);
+    if (!testPassErr) {
+      await batchInsert("guest_passports", passportsToInsert);
+    } else {
+      console.log("   (guest_passports table not yet migrated in Supabase; skipped seed insertion)");
+    }
+  }
 
   // 10C. Seed Digital Contracts Vault across Weddings
   console.log("• Provisioning Digital Contracts & Legal Agreements Vault...");

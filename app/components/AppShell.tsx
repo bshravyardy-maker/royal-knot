@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
@@ -10,6 +11,12 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Guest-facing passport portal is full-screen without internal agency sidebar/header
+  if (pathname?.startsWith("/passport/")) {
+    return <div className="min-h-screen bg-ivory text-navy">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-ivory flex">

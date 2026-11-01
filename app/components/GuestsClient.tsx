@@ -18,9 +18,13 @@ import {
   X,
   Loader2,
   Filter,
+  QrCode,
 } from "lucide-react";
 import { DemoBadge } from "./DemoBadge";
 import { addGuestAction, updateGuestRsvpAction, deleteGuestAction } from "@/actions/guests";
+import { ConciergeAgencyTab } from "./ConciergeAgencyTab";
+import { PrintableQrPassModal } from "./PrintableQrPassModal";
+import { generateOrGetGuestPassportAction } from "@/actions/concierge";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface GuestsClientProps {
@@ -29,6 +33,7 @@ interface GuestsClientProps {
 }
 
 export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps) {
+  const [activeTab, setActiveTab] = useState<"roster" | "concierge">("roster");
   const [guests, setGuests] = useState<any[]>(initialGuests);
   const [selectedWeddingId, setSelectedWeddingId] = useState<string>("All");
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -36,6 +41,12 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
   const [vipOnly, setVipOnly] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [updatingGuestId, setUpdatingGuestId] = useState<string | null>(null);
+
+  // Quick QR modal state from roster row
+  const [quickQrGuest, setQuickQrGuest] = useState<any | null>(null);
+  const [quickRawToken, setQuickRawToken] = useState<string>("");
+  const [isQuickQrOpen, setIsQuickQrOpen] = useState(false);
+  const [generatingQrId, setGeneratingQrId] = useState<string | null>(null);
 
   // New Guest Form State
   const [name, setName] = useState("");
@@ -136,6 +147,20 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
     await deleteGuestAction(guestId);
   }
 
+  async function handleQuickQr(guest: any) {
+    setGeneratingQrId(guest.id);
+    const res = await generateOrGetGuestPassportAction(guest.id);
+    setGeneratingQrId(null);
+
+    if (res.success && res.data) {
+      setQuickRawToken(res.data.rawToken);
+      setQuickQrGuest(guest);
+      setIsQuickQrOpen(true);
+    } else {
+      alert(res.error || "Failed to generate digital passport.");
+    }
+  }
+
   async function handleCreateGuest(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -218,7 +243,37 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
         </button>
       </div>
 
-      {/* KPI Cards */}
+      {/* View Switcher Tabs */}
+      <div className="flex items-center space-x-2 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab("roster")}
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center space-x-1.5 ${
+            activeTab === "roster"
+              ? "border-navy text-navy"
+              : "border-transparent text-gray-400 hover:text-navy"
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Palace Guest Roster</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("concierge")}
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center space-x-1.5 ${
+            activeTab === "concierge"
+              ? "border-gold text-gold-dark"
+              : "border-transparent text-gray-400 hover:text-gold"
+          }`}
+        >
+          <QrCode className="w-3.5 h-3.5" />
+          <span>Royal Guest Concierge & Passports</span>
+        </button>
+      </div>
+
+      {activeTab === "concierge" ? (
+        <ConciergeAgencyTab weddingsList={weddingsList} guests={guests} />
+      ) : (
+        <>
+          {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
         <div className="royal-card p-4">
           <div className="text-[10px] uppercase font-bold text-gray-400">Total Invites</div>
@@ -425,7 +480,19 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
                       </span>
                     </td>
 
-                    <td className="py-3.5 text-right">
+                    <td className="py-3.5 text-right whitespace-nowrap space-x-1">
+                      <button
+                        onClick={() => handleQuickQr(guest)}
+                        disabled={generatingQrId === guest.id}
+                        className="text-gold-dark hover:text-navy p-1.5 rounded-lg hover:bg-gold/10 transition-colors"
+                        title="Generate or Print Guest Digital Passport"
+                      >
+                        {generatingQrId === guest.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <QrCode className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                       <button
                         onClick={() => handleDeleteGuest(guest.id)}
                         className="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
@@ -441,6 +508,8 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
           </table>
         )}
       </div>
+      </>
+      )}
 
       {/* Add Guest Modal */}
       {isAddModalOpen && (
@@ -649,6 +718,27 @@ export function GuestsClient({ initialGuests, weddingsList }: GuestsClientProps)
             </form>
           </div>
         </div>
+      )}
+
+      {/* Quick QR Modal from Roster row */}
+      {quickQrGuest && (
+        <PrintableQrPassModal
+          isOpen={isQuickQrOpen}
+          onClose={() => setIsQuickQrOpen(false)}
+          guest={{
+            id: quickQrGuest.id,
+            name: quickQrGuest.name,
+            wedding_title:
+              weddingsList.find((w) => w.id === quickQrGuest.wedding_id)?.title ||
+              "Palatial Wedding Celebration",
+            hotel_assigned: quickQrGuest.hotel_assigned,
+            room_number: quickQrGuest.room_number,
+            table_number: quickQrGuest.table_number,
+            party_size: quickQrGuest.party_size,
+            side: quickQrGuest.side,
+          }}
+          rawToken={quickRawToken}
+        />
       )}
     </div>
   );
