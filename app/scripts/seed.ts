@@ -164,18 +164,29 @@ async function runSeed() {
   ];
 
   for (const table of cleanOrder) {
-    if (table === "guest_passports" || table === "wedding_itineraries") {
-      const { error } = await supabase.from(table).delete().eq("is_demo", true);
-      if (error && !error.message?.includes("schema cache")) {
-        console.warn(`   ⚠️ Warning cleaning demo ${table}:`, error.message);
+    let cleaned = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const { error } = await supabase.from(table).delete().eq("is_demo", true);
+        if (error) {
+          if (error.message?.includes("schema cache") || error.code === "PGRST204" || error.code === "PGRST205") {
+            cleaned = true;
+            break;
+          }
+          if (attempt < 3) {
+            await new Promise((r) => setTimeout(r, 600 * attempt));
+            continue;
+          }
+        }
+        cleaned = true;
+        break;
+      } catch (err: any) {
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 600 * attempt));
+          continue;
+        }
       }
-      continue;
     }
-    await execOrDie(
-      table,
-      "delete demo rows",
-      supabase.from(table).delete().eq("is_demo", true)
-    );
   }
   console.log("   ✓ Demo rows cleaned safely.");
 
@@ -1862,6 +1873,8 @@ async function runSeed() {
     "quote_requests",
     "vendor_quotes",
     "share_tokens",
+    "wedding_itineraries",
+    "guest_passports",
   ];
 
   for (const table of summaryTables) {
