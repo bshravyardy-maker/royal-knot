@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -18,7 +18,10 @@ import {
   Settings,
   X,
   Sparkles,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
+import { getSessionAction, logoutAction, UserSession } from "@/actions/auth";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -42,6 +45,11 @@ export const navigationItems = [
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [session, setSession] = useState<UserSession | null>(null);
+
+  useEffect(() => {
+    getSessionAction().then(setSession);
+  }, [pathname]);
 
   return (
     <>
@@ -125,26 +133,50 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Agency Footer Status */}
+        {/* Agency Footer Status & Active Session */}
         <div className="p-4 border-t border-[#C6A46A]/20 bg-navy-dark/40 space-y-2">
+          {session ? (
+            <div className="p-3 rounded-xl bg-navy/80 border border-gold/30 flex items-center justify-between">
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C6A46A] to-[#8C7142] flex items-center justify-center text-navy font-bold text-xs shadow-sm flex-shrink-0">
+                  {session.avatarLetter}
+                </div>
+                <div className="text-xs min-w-0">
+                  <p className="font-semibold text-white truncate">{session.name}</p>
+                  <p className="text-[10px] text-gold-light/80 truncate">{session.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => logoutAction()}
+                title="Sign Out"
+                className="p-1.5 rounded-lg text-ivory/60 hover:text-rose-400 hover:bg-rose-500/10 transition-colors ml-1"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={onClose}
+              className="w-full py-2 px-3 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/30 text-gold-light text-xs font-semibold flex items-center justify-between transition-colors group"
+            >
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-gold" />
+                <span>Staff & Manager Login</span>
+              </div>
+              <span className="text-[10px] text-gold group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            </Link>
+          )}
+
           <Link
             href="/login"
             onClick={onClose}
-            className="w-full py-2 px-3 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/30 text-gold-light text-xs font-semibold flex items-center justify-between transition-colors group"
+            className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-ivory/70 hover:text-white text-xs font-medium flex items-center justify-between transition-colors group"
           >
-            <span>Client & Guest Portal</span>
-            <span className="text-[10px] text-gold group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            <span>Client & Guest Desk</span>
+            <span className="text-[10px] text-ivory/40 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
           </Link>
-
-          <div className="p-3 rounded-xl bg-navy/80 border border-[#C6A46A]/20 flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="text-xs min-w-0">
-              <p className="font-semibold text-white truncate">Royal Concierge 2026</p>
-              <p className="text-[11px] text-[#DFC698]/80 truncate">25 Palatial Weddings</p>
-            </div>
-          </div>
         </div>
       </aside>
     </>

@@ -23,6 +23,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { submitPublicInquiryAction } from "@/actions/enquiries";
+import { loginAction } from "@/actions/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function LoginPage() {
 
   // Login Form State
   const [loginEmail, setLoginEmail] = useState("founder@royalknot.in");
-  const [loginPassword, setLoginPassword] = useState("••••••••••••");
+  const [loginPassword, setLoginPassword] = useState("RoyalKnot@2026");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isEntering, setIsEntering] = useState(false);
@@ -55,9 +56,24 @@ export default function LoginPage() {
       return;
     }
     setIsEntering(true);
-    setTimeout(() => {
-      router.push("/");
-    }, 700);
+    try {
+      const res = await loginAction({
+        email: loginEmail,
+        password: loginPassword,
+        rememberMe,
+      });
+
+      if (!res.success) {
+        setLoginError(res.error || "Authentication failed. Please check your credentials.");
+        setIsEntering(false);
+      } else {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (err: any) {
+      setLoginError(err.message || "An unexpected error occurred during sign in.");
+      setIsEntering(false);
+    }
   }
 
   function handleSelectQuickRole(roleEmail: string, roleName: string) {
