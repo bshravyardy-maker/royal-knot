@@ -217,9 +217,9 @@ async function runSeed() {
   const createdTeam = await batchInsert("team_members", teamData);
 
   // 4. Vendors: 60 Luxury Artisan Vendors across 11 Categories
-  console.log("• Seeding 60 Curated Artisan Vendors across 11 Palatial Categories...");
+  console.log("• Seeding 110 Curated Artisan Vendors (Exactly 10 across 11 Palatial Categories)...");
   const vendorsPoolData = [
-    // 1. Catering (8 vendors)
+    // 1. Catering (10 vendors)
     { name: "Mewar Shahi Bawarchi", category: "Catering", city: "Udaipur", rating: 4.9, contact_person: "Chef Ranveer Singh", phone: "+91 98291 00001", email: "bawarchi@mewarshahi.in", is_demo: true },
     { name: "Rajputana Royal Banquets", category: "Catering", city: "Jaipur", rating: 4.8, contact_person: "Vikram Rathore", phone: "+91 98291 00002", email: "banquets@rajputanaroyal.in", is_demo: true },
     { name: "Lakeview Gourmet Feasts", category: "Catering", city: "Udaipur", rating: 4.7, contact_person: "Pooja Chundawat", phone: "+91 98291 00003", email: "feasts@lakeviewgourmet.in", is_demo: true },
@@ -228,8 +228,10 @@ async function runSeed() {
     { name: "Pichola Royal Degs", category: "Catering", city: "Udaipur", rating: 4.8, contact_person: "Himmat Menaria", phone: "+91 98291 00006", email: "contact@picholadegs.in", is_demo: true },
     { name: "Jaipur Heritage Rasoi", category: "Catering", city: "Jaipur", rating: 4.5, contact_person: "Kailash Sharma", phone: "+91 98291 00007", email: "rasoi@jaipurheritage.in", is_demo: true },
     { name: "Fateh Sagar Silver Dining", category: "Catering", city: "Udaipur", rating: 4.9, contact_person: "Devendra Jhala", phone: "+91 98291 00008", email: "silver@fatehsagardining.in", is_demo: true },
+    { name: "Chokhi Dhani Royal Rasoda", category: "Catering", city: "Jaipur", rating: 4.8, contact_person: "Bhairon Singh", phone: "+91 98291 00061", email: "rasoda@chokhidhani.in", is_demo: true },
+    { name: "Shiv Niwas Imperial Feasts", category: "Catering", city: "Udaipur", rating: 5.0, contact_person: "Chef Arvind Sisodia", phone: "+91 98291 00062", email: "feasts@shivniwas.in", is_demo: true },
 
-    // 2. Decor & Florals (8 vendors)
+    // 2. Decor & Florals (10 vendors)
     { name: "Rajputana Decor & Florals", category: "Decor & Florals", city: "Jaipur", rating: 5.0, contact_person: "Divya Shekhawat", phone: "+91 98291 00009", email: "divya@rajputanadecor.in", is_demo: true },
     { name: "Udaipur Lotus Floral Arts", category: "Decor & Florals", city: "Udaipur", rating: 4.9, contact_person: "Manish Soni", phone: "+91 98291 00010", email: "manish@lotusfloral.in", is_demo: true },
     { name: "Rambagh Royal Pavilions", category: "Decor & Florals", city: "Jaipur", rating: 4.8, contact_person: "Sneha Bhati", phone: "+91 98291 00011", email: "sneha@rambaghpavilions.in", is_demo: true },
@@ -238,68 +240,116 @@ async function runSeed() {
     { name: "City Palace Botanical Guild", category: "Decor & Florals", city: "Udaipur", rating: 4.6, contact_person: "Bhupendra Vyas", phone: "+91 98291 00014", email: "guild@botanicaludaipur.in", is_demo: true },
     { name: "Gulab Bagh Marigold Crafts", category: "Decor & Florals", city: "Jaipur", rating: 4.7, contact_person: "Rajesh Saini", phone: "+91 98291 00015", email: "rajesh@gulabbaghcrafts.in", is_demo: true },
     { name: "Aravalli Canopy Architectures", category: "Decor & Florals", city: "Udaipur", rating: 4.8, contact_person: "Harish Parihar", phone: "+91 98291 00016", email: "info@aravallicanopy.in", is_demo: true },
+    { name: "Samode Velvet & Jasmine Guild", category: "Decor & Florals", city: "Jaipur", rating: 4.9, contact_person: "Kritika Chandel", phone: "+91 98291 00063", email: "jasmine@samodedecor.in", is_demo: true },
+    { name: "Mewar Royal Rajwada Mandaps", category: "Decor & Florals", city: "Udaipur", rating: 4.8, contact_person: "Surendra Dabi", phone: "+91 98291 00064", email: "rajwada@mewarmandaps.in", is_demo: true },
 
-    // 3. Music and DJ (6 vendors)
+    // 3. Music and DJ (10 vendors)
     { name: "Jaipur Royal Beats DJ", category: "Music and DJ", city: "Jaipur", rating: 4.8, contact_person: "DJ Kabir Roy", phone: "+91 98291 00017", email: "dj@jaipurroyalbeats.in", is_demo: true },
     { name: "Desert Symphony & Manganiyar Troupe", category: "Music and DJ", city: "Jaipur", rating: 5.0, contact_person: "Ustad Gazi Khan", phone: "+91 98291 00018", email: "contact@desertsymphony.in", is_demo: true },
     { name: "Udaipur Lake Beats Fusion DJ", category: "Music and DJ", city: "Udaipur", rating: 4.7, contact_person: "DJ Samar Sen", phone: "+91 98291 00019", email: "samar@lakebeats.in", is_demo: true },
     { name: "Mewar Shehnai & Nagada Ensemble", category: "Music and DJ", city: "Udaipur", rating: 4.9, contact_person: "Pandit Ramswaroop", phone: "+91 98291 00020", email: "mewar@nagadaensemble.in", is_demo: true },
     { name: "Pink City Brass & Dhol Symphony", category: "Music and DJ", city: "Jaipur", rating: 4.6, contact_person: "Mohit Kumawat", phone: "+91 98291 00021", email: "brass@pinkcitydhol.in", is_demo: true },
     { name: "Royal Sitar & Santoor Mehfil", category: "Music and DJ", city: "Udaipur", rating: 4.8, contact_person: "Vidushi Meera Joshi", phone: "+91 98291 00022", email: "meera@sitarsantoormehfil.in", is_demo: true },
+    { name: "Thar Folk Rhythms & Kalbelia Troupe", category: "Music and DJ", city: "Jaipur", rating: 4.9, contact_person: "Kishan Khan", phone: "+91 98291 00065", email: "thar@folkrhythms.in", is_demo: true },
+    { name: "Lake Pichola Acoustic Strings", category: "Music and DJ", city: "Udaipur", rating: 4.8, contact_person: "Aniruddh Bose", phone: "+91 98291 00066", email: "strings@picholaacoustic.in", is_demo: true },
+    { name: "Amber Palace Sufi & Qawwali Ensemble", category: "Music and DJ", city: "Jaipur", rating: 5.0, contact_person: "Ustad Sabir Nizami", phone: "+91 98291 00067", email: "sufi@amberqawwals.in", is_demo: true },
+    { name: "DJ Rohit Lake City Royal Sets", category: "Music and DJ", city: "Udaipur", rating: 4.7, contact_person: "Rohit Menaria", phone: "+91 98291 00068", email: "rohit@lakecitysets.in", is_demo: true },
 
-    // 4. Photography (6 vendors)
+    // 4. Photography (10 vendors)
     { name: "Royal Lens Heritage Photography", category: "Photography", city: "Jaipur", rating: 4.9, contact_person: "Aditya Chopra", phone: "+91 98291 00023", email: "contact@royallens.in", is_demo: true },
     { name: "Udaipur Pichola Cinematics", category: "Photography", city: "Udaipur", rating: 4.9, contact_person: "Rohan Varma", phone: "+91 98291 00024", email: "rohan@picholacinematics.in", is_demo: true },
     { name: "Rajputana Candid Moments", category: "Photography", city: "Jaipur", rating: 4.7, contact_person: "Tanvi Mathur", phone: "+91 98291 00025", email: "tanvi@candidrajputana.in", is_demo: true },
     { name: "Fateh Garh Drone & Vista Arts", category: "Photography", city: "Udaipur", rating: 4.8, contact_person: "Karan Deora", phone: "+91 98291 00026", email: "karan@fatehgarhdrone.in", is_demo: true },
     { name: "Hawa Mahal Vintage Portraits", category: "Photography", city: "Jaipur", rating: 4.6, contact_person: "Vipin Agarwal", phone: "+91 98291 00027", email: "vipin@hawamahalportraits.in", is_demo: true },
     { name: "Monsoon Palace Film Works", category: "Photography", city: "Udaipur", rating: 4.8, contact_person: "Shruti Bagchi", phone: "+91 98291 00028", email: "shruti@monsoonpalacefilms.in", is_demo: true },
+    { name: "Stories by Royal Heritage", category: "Photography", city: "Jaipur", rating: 5.0, contact_person: "Prateek Rawal", phone: "+91 98291 00069", email: "stories@royalheritagefilms.in", is_demo: true },
+    { name: "Lake City Cinematic Stories", category: "Photography", city: "Udaipur", rating: 4.9, contact_person: "Varun Mehta", phone: "+91 98291 00070", email: "varun@lakecitystories.in", is_demo: true },
+    { name: "The Regal Frame Weddings", category: "Photography", city: "Jaipur", rating: 4.8, contact_person: "Pooja Singhal", phone: "+91 98291 00071", email: "pooja@theregalframe.in", is_demo: true },
+    { name: "Mewar Memories Visual Studio", category: "Photography", city: "Udaipur", rating: 4.7, contact_person: "Deepak Chundawat", phone: "+91 98291 00072", email: "deepak@mewarmemories.in", is_demo: true },
 
-    // 5. Makeup (5 vendors)
+    // 5. Makeup (10 vendors)
     { name: "Roop Shringar Bridal Art", category: "Makeup", city: "Jaipur", rating: 4.9, contact_person: "Kavita Rathore", phone: "+91 98291 00029", email: "kavita@roopshringar.in", is_demo: true },
     { name: "Lake City Royal Makeovers", category: "Makeup", city: "Udaipur", rating: 4.8, contact_person: "Natasha Kothari", phone: "+91 98291 00030", email: "natasha@lakecitymakeovers.in", is_demo: true },
     { name: "Maharani Glow Luxury Studio", category: "Makeup", city: "Jaipur", rating: 4.9, contact_person: "Simran Kaur", phone: "+91 98291 00031", email: "simran@maharaniglow.in", is_demo: true },
     { name: "Zenana Courtyard Bridal Glow", category: "Makeup", city: "Udaipur", rating: 4.7, contact_person: "Preeti Bhatt", phone: "+91 98291 00032", email: "preeti@zenanaglow.in", is_demo: true },
     { name: "Amber Velvet Salon & Spa", category: "Makeup", city: "Jaipur", rating: 4.6, contact_person: "Shreya Saxena", phone: "+91 98291 00033", email: "shreya@ambervelvet.in", is_demo: true },
+    { name: "Gulab Bagh Bridal Atelier", category: "Makeup", city: "Udaipur", rating: 4.8, contact_person: "Meenakshi Vyas", phone: "+91 98291 00073", email: "atelier@gulabbaghbridal.in", is_demo: true },
+    { name: "Royal Rajputana Shringar", category: "Makeup", city: "Jaipur", rating: 4.9, contact_person: "Rukmani Kanwar", phone: "+91 98291 00074", email: "rukmani@rajputanashringar.in", is_demo: true },
+    { name: "Udaipur Bridal Couture Glam", category: "Makeup", city: "Udaipur", rating: 4.8, contact_person: "Barkha Porwal", phone: "+91 98291 00075", email: "barkha@coutureglam.in", is_demo: true },
+    { name: "Sheesh Mahal Bridal Lounge", category: "Makeup", city: "Jaipur", rating: 5.0, contact_person: "Tina Harchandani", phone: "+91 98291 00076", email: "tina@sheeshlounge.in", is_demo: true },
+    { name: "Pichola Aura Bridal Styling", category: "Makeup", city: "Udaipur", rating: 4.7, contact_person: "Suman Ranawat", phone: "+91 98291 00077", email: "suman@picholaaura.in", is_demo: true },
 
-    // 6. Transport (5 vendors)
+    // 6. Transport (10 vendors)
     { name: "Vintage Wheels of Rajputana", category: "Transport", city: "Jaipur", rating: 4.9, contact_person: "Major Hanut Singh", phone: "+91 98291 00034", email: "vintage@rajputanawheels.in", is_demo: true },
     { name: "Udaipur Royal Chariot & Boat Fleet", category: "Transport", city: "Udaipur", rating: 4.8, contact_person: "Gajendra Sisodia", phone: "+91 98291 00035", email: "fleet@udaipurchariots.in", is_demo: true },
     { name: "Maharaja Rolls & Limousine Fleet", category: "Transport", city: "Jaipur", rating: 4.9, contact_person: "Amanjot Gill", phone: "+91 98291 00036", email: "aman@maharajarolls.in", is_demo: true },
     { name: "Pichola Royal Shikara Transfers", category: "Transport", city: "Udaipur", rating: 4.7, contact_person: "Bhanu Pratap", phone: "+91 98291 00037", email: "transfers@picholashikara.in", is_demo: true },
     { name: "Aravalli Luxury Coaches & Sedans", category: "Transport", city: "Jaipur", rating: 4.5, contact_person: "Nitin Jain", phone: "+91 98291 00038", email: "nitin@aravalliluxury.in", is_demo: true },
+    { name: "Desert Royal Horse & Elephant Protocol", category: "Transport", city: "Jaipur", rating: 4.8, contact_person: "Raghavendra Bhati", phone: "+91 98291 00078", email: "protocol@deserthorse.in", is_demo: true },
+    { name: "Lake Palace Private Yacht Service", category: "Transport", city: "Udaipur", rating: 5.0, contact_person: "Capt. Mahendra Singh", phone: "+91 98291 00079", email: "yacht@lakepalacetransfers.in", is_demo: true },
+    { name: "Rajputana Heritage Carriages", category: "Transport", city: "Jaipur", rating: 4.7, contact_person: "Devraj Panwar", phone: "+91 98291 00080", email: "carriages@heritagecarriages.in", is_demo: true },
+    { name: "City Palace Royal Buggy Fleet", category: "Transport", city: "Udaipur", rating: 4.9, contact_person: "Fateh Singh", phone: "+91 98291 00081", email: "buggy@citypalacefleet.in", is_demo: true },
+    { name: "Amber Grand Logistics & Convoy", category: "Transport", city: "Jaipur", rating: 4.6, contact_person: "Sandeep Yadav", phone: "+91 98291 00082", email: "convoy@amberlogistics.in", is_demo: true },
 
-    // 7. Lighting (5 vendors)
+    // 7. Lighting (10 vendors)
     { name: "Surya Roshni Palace Lighting", category: "Lighting", city: "Jaipur", rating: 4.8, contact_person: "Dinesh Pareek", phone: "+91 98291 00039", email: "dinesh@suryaroshni.in", is_demo: true },
     { name: "Jagmandir Lake Illuminations", category: "Lighting", city: "Udaipur", rating: 4.9, contact_person: "Sanjay Gehlot", phone: "+91 98291 00040", email: "sanjay@jagmandirlighting.in", is_demo: true },
     { name: "Amber Fort Torch & Fairy Lights", category: "Lighting", city: "Jaipur", rating: 4.7, contact_person: "Lokesh Rawat", phone: "+91 98291 00041", email: "lokesh@amberlights.in", is_demo: true },
     { name: "Fateh Sagar Architectural Lumens", category: "Lighting", city: "Udaipur", rating: 4.8, contact_person: "Arvind Solanki", phone: "+91 98291 00042", email: "arvind@fatehsagarlumens.in", is_demo: true },
     { name: "Shekhawati Diya & Chandelier Guild", category: "Lighting", city: "Jaipur", rating: 4.6, contact_person: "Pradeep Joshi", phone: "+91 98291 00043", email: "pradeep@diyaguild.in", is_demo: true },
+    { name: "Royal Heritage Laser & Façade Projection", category: "Lighting", city: "Jaipur", rating: 5.0, contact_person: "Gaurav Sen", phone: "+91 98291 00083", email: "laser@royalfacades.in", is_demo: true },
+    { name: "Pichola Midnight Floating Lanterns", category: "Lighting", city: "Udaipur", rating: 4.9, contact_person: "Manoj Kumawat", phone: "+91 98291 00084", email: "lanterns@picholamildnight.in", is_demo: true },
+    { name: "Samode Palace Candlelight Guild", category: "Lighting", city: "Jaipur", rating: 4.8, contact_person: "Ravi Shankar Soni", phone: "+91 98291 00085", email: "candlelight@samodeguild.in", is_demo: true },
+    { name: "Aravalli Sky Beams & Grand Pyros", category: "Lighting", city: "Jaipur", rating: 4.7, contact_person: "Alok Mathur", phone: "+91 98291 00086", email: "pyro@aravallisky.in", is_demo: true },
+    { name: "Mewar Durbar Crystal Chandeliers", category: "Lighting", city: "Udaipur", rating: 4.8, contact_person: "Hemant Jhala", phone: "+91 98291 00087", email: "chandeliers@mewardurbar.in", is_demo: true },
 
-    // 8. Mehendi (5 vendors)
+    // 8. Mehendi (10 vendors)
     { name: "Rang Mehendi Royal Arts", category: "Mehendi", city: "Jaipur", rating: 4.9, contact_person: "Geeta Maru", phone: "+91 98291 00044", email: "geeta@rangmehendi.in", is_demo: true },
     { name: "Udaipur Marwar Henna Studio", category: "Mehendi", city: "Udaipur", rating: 4.8, contact_person: "Sunita Kumawat", phone: "+91 98291 00045", email: "sunita@marwarhenna.in", is_demo: true },
     { name: "Soojat Pure Herbal Mehendi", category: "Mehendi", city: "Jaipur", rating: 5.0, contact_person: "Rekha Mali", phone: "+91 98291 00046", email: "rekha@soojathenna.in", is_demo: true },
     { name: "Pichola Henna Heritage", category: "Mehendi", city: "Udaipur", rating: 4.7, contact_person: "Mamta Sharma", phone: "+91 98291 00047", email: "mamta@picholahenna.in", is_demo: true },
     { name: "Johari Bazaar Royal Mehendi", category: "Mehendi", city: "Jaipur", rating: 4.6, contact_person: "Pooja Vaishnav", phone: "+91 98291 00048", email: "pooja@joharimehendi.in", is_demo: true },
+    { name: "Bridal Henna by Geeta Shahi", category: "Mehendi", city: "Jaipur", rating: 4.9, contact_person: "Geeta Verma", phone: "+91 98291 00088", email: "geeta@geetashahi.in", is_demo: true },
+    { name: "Lake City Organic Henna Artisans", category: "Mehendi", city: "Udaipur", rating: 4.8, contact_person: "Priyanka Soni", phone: "+91 98291 00089", email: "organic@lakecityhenna.in", is_demo: true },
+    { name: "Rajputana Shahi Mehendi Lounge", category: "Mehendi", city: "Jaipur", rating: 4.8, contact_person: "Sarita Rathore", phone: "+91 98291 00090", email: "lounge@shahimehendi.in", is_demo: true },
+    { name: "Mewar Bridal Henna Connoisseurs", category: "Mehendi", city: "Udaipur", rating: 4.7, contact_person: "Anju Menaria", phone: "+91 98291 00091", email: "connoisseurs@mewarhenna.in", is_demo: true },
+    { name: "Amber Marwar Bridal Arts", category: "Mehendi", city: "Jaipur", rating: 4.9, contact_person: "Chanda Mali", phone: "+91 98291 00092", email: "chanda@ambermarwar.in", is_demo: true },
 
-    // 9. Pandit (4 vendors)
+    // 9. Pandit (10 vendors)
     { name: "Acharya Vidyadhar Shastri (Vedic Pheras)", category: "Pandit", city: "Jaipur", rating: 5.0, contact_person: "Acharya Vidyadhar", phone: "+91 98291 00049", email: "shastri@vedicpheras.in", is_demo: true },
     { name: "Mewar Rajpurohit Sansthan", category: "Pandit", city: "Udaipur", rating: 4.9, contact_person: "Pandit Govind Dev", phone: "+91 98291 00050", email: "rajpurohit@mewarsansthan.in", is_demo: true },
     { name: "Kashi-Varanasi Vedic Acharyas", category: "Pandit", city: "Jaipur", rating: 4.8, contact_person: "Pandit Harishankar", phone: "+91 98291 00051", email: "harishankar@kashivedic.in", is_demo: true },
     { name: "Nathdwara Haveli Pundit Sabha", category: "Pandit", city: "Udaipur", rating: 4.8, contact_person: "Pandit Damodar Das", phone: "+91 98291 00052", email: "damodar@nathdwarapundits.in", is_demo: true },
+    { name: "Pandit Raghunath Ji Phera Gurukul", category: "Pandit", city: "Jaipur", rating: 4.9, contact_person: "Pandit Raghunath", phone: "+91 98291 00093", email: "gurukul@raghunathji.in", is_demo: true },
+    { name: "Acharya Devendra Joshi Shahi Purohits", category: "Pandit", city: "Udaipur", rating: 5.0, contact_person: "Acharya Devendra", phone: "+91 98291 00094", email: "purohits@devendrajoshi.in", is_demo: true },
+    { name: "Haridwar Vedic Vivah Sanskar Sabha", category: "Pandit", city: "Jaipur", rating: 4.8, contact_person: "Pandit Brijesh Shastri", phone: "+91 98291 00095", email: "sanskar@haridwarvedic.in", is_demo: true },
+    { name: "Somnath Sanskriti Acharya Parishad", category: "Pandit", city: "Udaipur", rating: 4.7, contact_person: "Pandit Girish Dave", phone: "+91 98291 00096", email: "parishad@somnathsanskriti.in", is_demo: true },
+    { name: "Pandit Jagdish Sharma Vivah Vidhi", category: "Pandit", city: "Jaipur", rating: 4.9, contact_person: "Pandit Jagdish", phone: "+91 98291 00097", email: "vidhi@jagdishsharma.in", is_demo: true },
+    { name: "Mewar Royal Sanskrit Sanstha", category: "Pandit", city: "Udaipur", rating: 4.8, contact_person: "Pandit Narayan Shastri", phone: "+91 98291 00098", email: "sanstha@mewarsanskrit.in", is_demo: true },
 
-    // 10. Sound (4 vendors)
+    // 10. Sound (10 vendors)
     { name: "Swaranjali Line-Array Concert Systems", category: "Sound", city: "Jaipur", rating: 4.9, contact_person: "Tariq Mahmood", phone: "+91 98291 00053", email: "tariq@swaranjalisound.in", is_demo: true },
     { name: "Jagmandir Lake Acoustic Sound", category: "Sound", city: "Udaipur", rating: 4.8, contact_person: "Ashwin Doshi", phone: "+91 98291 00054", email: "ashwin@jagmandirsound.in", is_demo: true },
     { name: "Amber Fort Amphitheatre Acoustics", category: "Sound", city: "Jaipur", rating: 4.7, contact_person: "Naveen Mathur", phone: "+91 98291 00055", email: "naveen@amberfortsound.in", is_demo: true },
     { name: "Pichola Sound Reinforcement Lab", category: "Sound", city: "Udaipur", rating: 4.8, contact_person: "Sidharth Roy", phone: "+91 98291 00056", email: "sidharth@picholasound.in", is_demo: true },
+    { name: "JBL Pro Royal Concert Audio", category: "Sound", city: "Jaipur", rating: 5.0, contact_person: "Farhan Qureshi", phone: "+91 98291 00099", email: "pro@jblroyalaudio.in", is_demo: true },
+    { name: "Lake City Acoustic Array Labs", category: "Sound", city: "Udaipur", rating: 4.9, contact_person: "Sunil Jain", phone: "+91 98291 00100", email: "array@lakecitysound.in", is_demo: true },
+    { name: "Desert Arena Surround Sound Guild", category: "Sound", city: "Jaipur", rating: 4.7, contact_person: "Sameer Sheikh", phone: "+91 98291 00101", email: "guild@desertarenasound.in", is_demo: true },
+    { name: "Mewar Shahi Audio Engineering", category: "Sound", city: "Udaipur", rating: 4.8, contact_person: "Pramod Shrimali", phone: "+91 98291 00102", email: "audio@mewaraudio.in", is_demo: true },
+    { name: "Pink City High-Decibel Sound Systems", category: "Sound", city: "Jaipur", rating: 4.6, contact_person: "Kishore Kumar", phone: "+91 98291 00103", email: "decibel@pinkcitysound.in", is_demo: true },
+    { name: "Royal Courtyard Wireless Audio Labs", category: "Sound", city: "Jaipur", rating: 4.8, contact_person: "Anand Verma", phone: "+91 98291 00104", email: "wireless@courtyardaudio.in", is_demo: true },
 
-    // 11. Valet (4 vendors)
+    // 11. Valet (10 vendors)
     { name: "Shahi Valet & Royal Hospitality Guard", category: "Valet", city: "Jaipur", rating: 4.8, contact_person: "Balwant Singh", phone: "+91 98291 00057", email: "balwant@shahivalet.in", is_demo: true },
     { name: "Udaipur Palace Valet Services", category: "Valet", city: "Udaipur", rating: 4.7, contact_person: "Chetan Panwar", phone: "+91 98291 00058", email: "chetan@udaipurvalet.in", is_demo: true },
     { name: "Pink City Elite Concierge & Valet", category: "Valet", city: "Jaipur", rating: 4.9, contact_person: "Dharmendra Rathore", phone: "+91 98291 00059", email: "dharmendra@pinkcityvalet.in", is_demo: true },
     { name: "Mewar Gate Protocol Valet", category: "Valet", city: "Udaipur", rating: 4.7, contact_person: "Rajendra Bhati", phone: "+91 98291 00060", email: "rajendra@mewargatevalet.in", is_demo: true },
+    { name: "Maharaja Chauffeur & Valet Corps", category: "Valet", city: "Jaipur", rating: 5.0, contact_person: "Hoshiyar Singh", phone: "+91 98291 00105", email: "corps@maharajavalet.in", is_demo: true },
+    { name: "Royal Rajasthan Guest Parking Command", category: "Valet", city: "Jaipur", rating: 4.8, contact_person: "Kailash Gehlot", phone: "+91 98291 00106", email: "parking@royalparking.in", is_demo: true },
+    { name: "Lakefront Chariot & Car Chaperones", category: "Valet", city: "Udaipur", rating: 4.8, contact_person: "Dilip Dangi", phone: "+91 98291 00107", email: "chaperones@lakefrontvalet.in", is_demo: true },
+    { name: "Amber Fort Gatekeeping & Valet Guild", category: "Valet", city: "Jaipur", rating: 4.6, contact_person: "Madan Rawat", phone: "+91 98291 00108", email: "amber@gatekeepingvalet.in", is_demo: true },
+    { name: "Fateh Sagar Dignitary Valet Corp", category: "Valet", city: "Udaipur", rating: 4.9, contact_person: "Sohan Singh", phone: "+91 98291 00109", email: "dignitary@fatehsagarvalet.in", is_demo: true },
+    { name: "Heritage Palace Valet Escorts", category: "Valet", city: "Jaipur", rating: 4.7, contact_person: "Pratap Rathore", phone: "+91 98291 00110", email: "escorts@heritagevalet.in", is_demo: true },
   ];
   const createdVendors = await batchInsert("vendors", vendorsPoolData);
 
@@ -1257,8 +1307,12 @@ async function runSeed() {
       guestsToInsert.push({
         wedding_id: wedding.id,
         name: tmpl.name,
+        party_size: tmpl.is_vip ? 2 : 1,
         rsvp_status: tmpl.rsvp,
         side: sides[gIdx % sides.length],
+        dietary_notes: tmpl.diet,
+        hotel_assigned: wedding.venue ? wedding.venue.split(",")[0] : "Rambagh Palace",
+        room_number: tmpl.room,
         is_demo: true,
       });
     }
@@ -1278,8 +1332,11 @@ async function runSeed() {
     contractsToInsert.push({
       wedding_id: wedding.id,
       title: `Palatial Wedding Service Master Agreement — ${wedding.title}`,
+      total_value: cVal,
       status: isCompleted || isInProgress ? "Signed" : "Sent",
       signed_at: isCompleted || isInProgress ? datePast(90) : null,
+      terms: "Standard luxury heritage event terms: 25% non-refundable retainer, balance in 2 milestones.",
+      couple_name: wedding.title,
       is_demo: true,
     });
 
@@ -1287,8 +1344,11 @@ async function runSeed() {
     contractsToInsert.push({
       wedding_id: wedding.id,
       title: `Exclusive Palace Estate Lease & Durbar Agreement — ${wedding.venue}`,
+      total_value: Math.round(cVal * 0.40),
       status: "Signed",
       signed_at: datePast(120),
+      terms: "Includes exclusive access to courtyards, banquet terraces, and bridal suites.",
+      couple_name: wedding.title,
       is_demo: true,
     });
 
@@ -1296,8 +1356,11 @@ async function runSeed() {
     contractsToInsert.push({
       wedding_id: wedding.id,
       title: `Artisan Shahi Feast & Banqueting Master SLA — ${wedding.title}`,
+      total_value: Math.round(cVal * 0.25),
       status: isCompleted ? "Signed" : isInProgress ? "Signed" : "Draft",
       signed_at: isCompleted || isInProgress ? datePast(60) : null,
+      terms: "Silver thali banquet service with certified food safety and overtime compensation rates.",
+      couple_name: wedding.title,
       is_demo: true,
     });
   }
@@ -1305,7 +1368,7 @@ async function runSeed() {
 
   // 11. Day-of Command Center: Schedule Items & Incidents for Weddings
   console.log("• Seeding Day-of Command Center Run-sheets...");
-  const commandCenterWeddings = [createdWeddings[0], createdWeddings[15]];
+  const commandCenterWeddings = createdWeddings;
   const todayWedding = createdWeddings[15]; // wedding_date = today
 
   const vendorDJ = createdVendors.find((v: any) => v.category === "Music and DJ") || createdVendors[16];

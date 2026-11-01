@@ -44,11 +44,17 @@ export default async function VendorsPage({
 
   const categories = [
     "All",
+    "Catering",
     "Decor & Florals",
-    "Catering & Royal Feasts",
-    "Photography & Cinematography",
-    "Entertainment & Folk Artists",
-    "Hospitality & Royal Fleet",
+    "Music and DJ",
+    "Photography",
+    "Makeup",
+    "Transport",
+    "Lighting",
+    "Mehendi",
+    "Pandit",
+    "Sound",
+    "Valet",
   ];
 
   return (

@@ -56,19 +56,29 @@ export function ContractsClient({ initialContracts, weddingsList }: ContractsCli
   const weddingMap = new Map<string, string>();
   weddingsList.forEach((w) => weddingMap.set(w.id, w.title));
 
+  // Helper to derive contract type cleanly
+  const getContractType = (c: any) => {
+    if (c.contract_type) return c.contract_type;
+    const t = (c.title || "").toLowerCase();
+    if (t.includes("venue") || t.includes("lease") || t.includes("estate")) return "Venue Booking";
+    if (t.includes("vendor") || t.includes("catering") || t.includes("sla") || t.includes("feast")) return "Vendor Contract";
+    return "Client Agreement";
+  };
+
   const filteredContracts = contracts.filter((c: any) => {
+    const cType = getContractType(c);
     if (selectedWeddingId !== "All" && c.wedding_id !== selectedWeddingId) return false;
-    if (typeFilter !== "All" && c.contract_type !== typeFilter) return false;
+    if (typeFilter !== "All" && cType !== typeFilter) return false;
     if (statusFilter !== "All" && c.status !== statusFilter) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const wTitle = weddingMap.get(c.wedding_id)?.toLowerCase() || "";
-      return c.title.toLowerCase().includes(q) || wTitle.includes(q);
+      return c.title.toLowerCase().includes(q) || wTitle.includes(q) || cType.toLowerCase().includes(q);
     }
     return true;
   });
 
-  const totalValue = filteredContracts.reduce((sum: number, c: any) => sum + Number((c as any).contract_value || 0), 0);
+  const totalValue = filteredContracts.reduce((sum: number, c: any) => sum + Number(c.total_value || c.contract_value || 0), 0);
   const signedCount = filteredContracts.filter((c: any) => c.status === "Signed").length;
   const draftCount = filteredContracts.filter((c: any) => c.status === "Draft" || c.status === "Sent").length;
 
@@ -283,12 +293,12 @@ export function ContractsClient({ initialContracts, weddingsList }: ContractsCli
 
                     <td className="py-3.5">
                       <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-navy">
-                        {(c as any).contract_type || "Agreement"}
+                        {getContractType(c)}
                       </span>
                     </td>
 
                     <td className="py-3.5 text-right font-bold text-navy font-mono">
-                      {formatINR((c as any).contract_value || 0)}
+                      {formatINR(Number(c.total_value || c.contract_value || 0))}
                     </td>
 
                     <td className="py-3.5 text-center">

@@ -40,6 +40,9 @@ export default async function CommandCenterPage({ searchParams }: CommandCenterP
   if (!activeWedding) {
     activeWedding = weddings.find((w: any) => w.wedding_date === todayStr);
   }
+  if (!activeWedding) {
+    activeWedding = weddings.find((w: any) => w.status === "In Progress");
+  }
   if (!activeWedding && weddings.length > 0) {
     activeWedding = weddings[0];
   }
