@@ -1,8 +1,15 @@
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Wedding } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
+
+export const metadata: Metadata = {
+  title: "Destination Weddings Roster | THE ROYAL KNOT",
+  description:
+    "Active destination wedding portfolio across Jaipur and Udaipur palaces, venues, budgets, and production milestones.",
+};
 import {
   Crown,
   Calendar,

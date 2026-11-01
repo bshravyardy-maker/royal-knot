@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle } from "lucide-react";
@@ -7,6 +8,12 @@ import { QuoteComparisonClient } from "@/components/QuoteComparisonClient";
 import { QuoteRequest, VendorQuote, Vendor } from "@/lib/types";
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Side-by-Side Vendor Rate Card Tender | THE ROYAL KNOT",
+  description:
+    "Direct comparative evaluation of vendor bids, plate rates, overtime allowances, and procurement contracts.",
+};
 
 export default async function QuoteRequestDetailPage({
   params,

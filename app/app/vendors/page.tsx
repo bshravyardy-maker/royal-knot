@@ -1,8 +1,15 @@
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Vendor } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
+
+export const metadata: Metadata = {
+  title: "Artisan Vendor Directory | THE ROYAL KNOT",
+  description:
+    "Curated directory of luxury wedding artisans across catering, decor, photography, music, and royal logistics in Rajasthan.",
+};
 import {
   Store,
   Star,

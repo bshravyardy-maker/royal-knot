@@ -1,9 +1,16 @@
 import React from "react";
+import { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { WeddingTasksBoardClient } from "@/components/WeddingTasksBoardClient";
 import { WeddingTask, TeamMember } from "@/lib/types";
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Palace Production Tasks & Operations | THE ROYAL KNOT",
+  description:
+    "Interactive production checklist and operations Kanban board across all wedding milestones and coordinator assignments.",
+};
 
 export default async function WeddingTasksPage({
   searchParams,

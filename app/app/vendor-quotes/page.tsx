@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import {
   FileSpreadsheet,
@@ -17,6 +18,12 @@ import { QuoteRequestListClient } from "@/components/QuoteRequestListClient";
 import { QuoteRequest } from "@/lib/types";
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Vendor RFPs & Competing Quotes | THE ROYAL KNOT",
+  description:
+    "Evaluate competing vendor quotes, price per plate rate cards, contract inclusions, and tender awards.",
+};
 
 export default async function VendorQuotesPage() {
   let requests: QuoteRequest[] = [];

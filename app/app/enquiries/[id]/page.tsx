@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Inbox, AlertCircle } from "lucide-react";
@@ -7,6 +8,12 @@ import { EnquiryDetailClient } from "@/components/EnquiryDetailClient";
 import { Enquiry, Contract } from "@/lib/types";
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Client Enquiry Dossier | THE ROYAL KNOT",
+  description:
+    "Detailed client dossier, wedding preferences, budget allocation, and digital contract execution.",
+};
 
 export default async function EnquiryDetailPage({
   params,

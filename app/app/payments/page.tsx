@@ -1,7 +1,14 @@
+import { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import PaymentsClient from "@/components/PaymentsClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Payments, Vendor Bills & Reconciliation | THE ROYAL KNOT",
+  description:
+    "Palatial financial management, client payment milestones, double-payment guards, and vendor bill matching.",
+};
 
 export default async function PaymentsPage() {
   try {

@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import {
   Crown,
   Inbox,
@@ -19,6 +20,12 @@ import {
 import Link from "next/link";
 import { fetchOverviewMetrics } from "@/lib/overview";
 import { DemoBadge } from "@/components/DemoBadge";
+
+export const metadata: Metadata = {
+  title: "Palatial Operations Dashboard | THE ROYAL KNOT",
+  description:
+    "Executive intelligence, live operations, conversion pipeline, and season financial performance across Rajasthan palaces.",
+};
 
 // Helper to format currency in Indian style (Lakhs & Crores)
 function formatINR(val: number): string {

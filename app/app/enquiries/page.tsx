@@ -1,8 +1,15 @@
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Enquiry } from "@/lib/types";
 import { DemoBadge } from "@/components/DemoBadge";
+
+export const metadata: Metadata = {
+  title: "Client Enquiries & Pipeline | THE ROYAL KNOT",
+  description:
+    "Manage client wedding enquiries, lead consultation stages, budgets, and palatial package proposals.",
+};
 import {
   Inbox,
   Calendar,

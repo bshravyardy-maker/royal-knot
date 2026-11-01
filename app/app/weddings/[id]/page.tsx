@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -28,6 +29,12 @@ function formatINR(val: number): string {
 }
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Palace Wedding Command & Production Dossier | THE ROYAL KNOT",
+  description:
+    "Master wedding production dossier, contracted budget, payment schedules, and artisan vendor assignments.",
+};
 
 export default async function WeddingDetailPage({
   params,

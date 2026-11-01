@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -30,6 +31,12 @@ function formatINR(val: number): string {
 }
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Artisan Vendor Profile & Scorecard | THE ROYAL KNOT",
+  description:
+    "Artisan vendor performance scorecard, past palatial wedding engagements, billing history, and rate cards.",
+};
 
 export default async function VendorDetailPage({
   params,
