@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   CheckSquare,
@@ -45,7 +45,7 @@ export function WeddingTasksBoardClient({
 }: WeddingTasksBoardClientProps) {
   const [tasks, setTasks] = useState<WeddingTask[]>(initialTasks);
   const [selectedWeddingId, setSelectedWeddingId] = useState<string>(
-    initialWeddingFilter !== "All" ? initialWeddingFilter : weddingsList[0]?.id || "All"
+    initialWeddingFilter && initialWeddingFilter !== "All" ? initialWeddingFilter : "All"
   );
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "done">("pending");
   const [activePhase, setActivePhase] = useState<string>("All");
@@ -53,6 +53,16 @@ export function WeddingTasksBoardClient({
   const [ownerFilter, setOwnerFilter] = useState<string>(initialOwnerFilter);
   const [taskSearch, setTaskSearch] = useState<string>("");
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
+  useEffect(() => {
+    if (initialWeddingFilter && initialWeddingFilter !== "All") {
+      setSelectedWeddingId(initialWeddingFilter);
+    }
+  }, [initialWeddingFilter]);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -424,14 +434,32 @@ export function WeddingTasksBoardClient({
               <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-50" />
               <p className="font-semibold text-navy text-sm">
                 {activeTab === "pending"
-                  ? "Splendid! No pending tasks remaining in this view."
+                  ? "Splendid! All pending tasks for this selection are completed."
                   : activeTab === "done"
                   ? "No tasks completed yet for this selection."
                   : "No tasks match your filter criteria."}
               </p>
-              <p className="text-gray-400 text-xs mt-1">
-                Toggle the filter tabs above or select another wedding to inspect tasks.
-              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                {activeTab === "pending" && doneTasks.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab("done")}
+                    className="btn-gold text-xs py-1.5 px-3"
+                  >
+                    View Completed Tasks ({doneTasks.length})
+                  </button>
+                )}
+                {selectedWeddingId !== "All" && (
+                  <button
+                    onClick={() => {
+                      setSelectedWeddingId("All");
+                      setActiveTab("pending");
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs text-navy font-semibold hover:bg-gray-50"
+                  >
+                    View Pending Across All Celebrations
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">

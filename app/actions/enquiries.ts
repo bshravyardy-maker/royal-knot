@@ -385,7 +385,6 @@ export async function updateTaskStageAction(
       return { success: false, error: error.message };
     }
 
-    revalidatePath("/wedding-tasks");
     revalidatePath("/weddings");
 
     return {

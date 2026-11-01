@@ -27,7 +27,7 @@ export default async function WeddingTasksPage({
 
     const [taskRes, wedRes, teamRes] = await Promise.all([
       supabase.from("wedding_tasks").select("*").order("due_date", { ascending: true }),
-      supabase.from("weddings").select("id, title, wedding_date, city").order("wedding_date", { ascending: true }),
+      supabase.from("weddings").select("id, title, wedding_date, city").order("wedding_date", { ascending: false }),
       supabase.from("team_members").select("*").order("name", { ascending: true }),
     ]);
 
