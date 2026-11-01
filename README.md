@@ -49,6 +49,20 @@ The platform eliminates fragmented communication channels, spreadsheets, and man
 - **Palace Concierge Desk:** 24/7 hotline and WhatsApp emergency links for immediate guest assistance.
 - **Agency Concierge Operations:** Dedicated management tab in `/guests` providing 1-click QR pass generation, token regeneration, revocation, transport assignment, and print-ready invitation card downloads.
 
+### 📍 Where to Find & Manage RSVPs
+
+The Royal Knot provides two synchronized views for RSVPs:
+
+1. **Guest-Facing RSVP Portal (`/passport/[token]`):**
+   - Each guest accesses their personal passport via their unique QR pass or link.
+   - On the **RSVP** tab, guests select their attendance (*Joyfully Accept* or *Regretfully Decline*).
+   - Guests provide meal preferences (*Jain Vegetarian, Pure Vegetarian, Halal, Vegan, Royal Rajput Feast*), food allergy notes, and special assistance requests (wheelchair, ground-floor suite).
+   - Submissions update the guest's status in real-time.
+
+2. **Agency RSVP Management Hub (`/guests`):**
+   - **Tab 1: "Guest List & Accommodations":** Displays aggregate metrics (Attending, Pending, Declined), an RSVP status filter dropdown, and a 1-click interactive badge on each row to cycle statuses manually (*Attending → Declined → Pending*).
+   - **Tab 2: "Royal Guest Concierge & Passports":** Live audit table displaying each guest's digital passport QR status, real-time RSVP response, dietary preferences, driver assignment, and transport notes.
+
 ### 7. Digital Contracts Vault
 - **Legal Repository (`/contracts`):** Centralized ledger for Client Agreements, Vendor Contracts, and Heritage Venue Bookings with total value tracking and live execution status updates.
 

@@ -53,6 +53,7 @@ export function WeddingTasksBoardClient({
   const [ownerFilter, setOwnerFilter] = useState<string>(initialOwnerFilter);
   const [taskSearch, setTaskSearch] = useState<string>("");
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [recentlyToggledIds, setRecentlyToggledIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setTasks(initialTasks);
@@ -69,6 +70,10 @@ export function WeddingTasksBoardClient({
   // Map of team members
   const memberMap = new Map<string, TeamMember>();
   teamMembers.forEach((m) => memberMap.set(m.id, m));
+
+  // Map of weddings
+  const weddingMap = new Map<string, { id: string; title: string; wedding_date?: string; city?: string }>();
+  weddingsList.forEach((w) => weddingMap.set(w.id, w));
 
   // Filter tasks for the selected wedding
   const weddingTasks = tasks.filter((t) => {
@@ -87,7 +92,9 @@ export function WeddingTasksBoardClient({
 
   // Split into Done vs Not Done
   const doneTasks = weddingTasks.filter((t) => t.stage === "Done");
-  const notDoneTasks = weddingTasks.filter((t) => t.stage !== "Done");
+  const notDoneTasks = weddingTasks.filter(
+    (t) => t.stage !== "Done" || recentlyToggledIds.has(t.id)
+  );
 
   // Displayed tasks based on activeTab
   const displayedTasks =
@@ -122,6 +129,16 @@ export function WeddingTasksBoardClient({
     const nextStage: TaskStage = currentStage === "Done" ? "In Progress" : "Done";
     setUpdatingTaskId(taskId);
 
+    setRecentlyToggledIds((prev) => {
+      const next = new Set(prev);
+      if (nextStage === "Done") {
+        next.add(taskId);
+      } else {
+        next.delete(taskId);
+      }
+      return next;
+    });
+
     // Optimistic update
     setTasks((prev) =>
       prev.map((t) =>
@@ -141,6 +158,11 @@ export function WeddingTasksBoardClient({
       setTasks((prev) =>
         prev.map((t) => (t.id === taskId ? { ...t, stage: currentStage } : t))
       );
+      setRecentlyToggledIds((prev) => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
       alert(`Could not update task: ${res.error}`);
     }
     setUpdatingTaskId(null);
@@ -148,6 +170,17 @@ export function WeddingTasksBoardClient({
 
   async function handleStageChange(taskId: string, newStage: TaskStage) {
     setUpdatingTaskId(taskId);
+
+    setRecentlyToggledIds((prev) => {
+      const next = new Set(prev);
+      if (newStage === "Done") {
+        next.add(taskId);
+      } else {
+        next.delete(taskId);
+      }
+      return next;
+    });
+
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, stage: newStage } : t))
     );
@@ -214,7 +247,10 @@ export function WeddingTasksBoardClient({
 
         <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-thin">
           <button
-            onClick={() => setSelectedWeddingId("All")}
+            onClick={() => {
+              setSelectedWeddingId("All");
+              setRecentlyToggledIds(new Set());
+            }}
             className={`p-3.5 rounded-2xl border text-left flex-shrink-0 w-52 transition-all ${
               selectedWeddingId === "All"
                 ? "bg-navy text-ivory border-gold shadow-md ring-2 ring-gold/40"
@@ -243,7 +279,10 @@ export function WeddingTasksBoardClient({
             return (
               <button
                 key={w.id}
-                onClick={() => setSelectedWeddingId(w.id)}
+                onClick={() => {
+                  setSelectedWeddingId(w.id);
+                  setRecentlyToggledIds(new Set());
+                }}
                 className={`p-3.5 rounded-2xl border text-left flex-shrink-0 w-64 transition-all ${
                   isSelected
                     ? "bg-navy text-ivory border-gold shadow-md ring-2 ring-gold/40 scale-[1.02]"
@@ -342,7 +381,10 @@ export function WeddingTasksBoardClient({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => setActiveTab("pending")}
+            onClick={() => {
+              setActiveTab("pending");
+              setRecentlyToggledIds(new Set());
+            }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               activeTab === "pending"
                 ? "bg-amber-500 text-white shadow-sm"
@@ -354,7 +396,10 @@ export function WeddingTasksBoardClient({
           </button>
 
           <button
-            onClick={() => setActiveTab("done")}
+            onClick={() => {
+              setActiveTab("done");
+              setRecentlyToggledIds(new Set());
+            }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               activeTab === "done"
                 ? "bg-emerald-600 text-white shadow-sm"
@@ -366,7 +411,10 @@ export function WeddingTasksBoardClient({
           </button>
 
           <button
-            onClick={() => setActiveTab("all")}
+            onClick={() => {
+              setActiveTab("all");
+              setRecentlyToggledIds(new Set());
+            }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === "all"
                 ? "bg-navy text-gold shadow-sm"
@@ -511,9 +559,19 @@ export function WeddingTasksBoardClient({
                             {task.title}
                           </h4>
                           {task.is_demo ? <DemoBadge /> : null}
+                          {isDone && recentlyToggledIds.has(task.id) && (
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              Marked Done
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-gray-500">
+                          {selectedWeddingId === "All" && weddingMap.get(task.wedding_id) && (
+                            <span className="font-semibold text-navy/80 bg-navy/5 border border-navy/15 px-2 py-0.5 rounded text-[10px] truncate max-w-[170px]" title={weddingMap.get(task.wedding_id)?.title}>
+                              {weddingMap.get(task.wedding_id)?.title}
+                            </span>
+                          )}
                           <span className="font-semibold text-[#8C7142] bg-[#F5EEDF] px-2 py-0.5 rounded">
                             {task.phase || "Planning"}
                           </span>
@@ -621,9 +679,16 @@ export function WeddingTasksBoardClient({
                       className="p-3 bg-white rounded-xl border border-gray-200 shadow-sm space-y-2 hover:border-gold/50 transition-colors"
                     >
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-semibold px-2 py-0.5 rounded bg-[#F5EEDF] text-[#8C7142]">
-                          {task.phase || "Milestone"}
-                        </span>
+                        <div className="flex items-center space-x-1.5 min-w-0">
+                          {selectedWeddingId === "All" && weddingMap.get(task.wedding_id) && (
+                            <span className="font-semibold text-navy/70 text-[9px] truncate max-w-[100px]" title={weddingMap.get(task.wedding_id)?.title}>
+                              {weddingMap.get(task.wedding_id)?.title}
+                            </span>
+                          )}
+                          <span className="font-semibold px-2 py-0.5 rounded bg-[#F5EEDF] text-[#8C7142]">
+                            {task.phase || "Milestone"}
+                          </span>
+                        </div>
                         {task.is_demo ? <DemoBadge /> : null}
                       </div>
 
