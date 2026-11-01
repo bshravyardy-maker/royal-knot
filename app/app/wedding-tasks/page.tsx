@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { WeddingTasksBoardClient } from "@/components/WeddingTasksBoardClient";
 import { WeddingTask, TeamMember } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
@@ -26,7 +27,10 @@ export default async function WeddingTasksPage({
     const supabase = getSupabaseAdmin();
 
     const [taskRes, wedRes, teamRes] = await Promise.all([
-      supabase.from("wedding_tasks").select("*").order("due_date", { ascending: true }),
+      supabase
+        .from("wedding_tasks")
+        .select("id, wedding_id, title, phase, stage, owner, due_date, completed_at, notes, is_demo")
+        .order("due_date", { ascending: true }),
       supabase.from("weddings").select("id, title, wedding_date, city").order("wedding_date", { ascending: false }),
       supabase.from("team_members").select("*").order("name", { ascending: true }),
     ]);
@@ -37,6 +41,9 @@ export default async function WeddingTasksPage({
     weddingsList = wedRes.data || [];
     teamMembers = teamRes.data || [];
   } catch (err: any) {
+    if (err.digest === "DYNAMIC_SERVER_USAGE" || err.message?.includes("Dynamic server usage")) {
+      throw err;
+    }
     console.error("WeddingTasksPage error:", err);
     errorMsg = err.message || "Failed to load wedding tasks.";
   }

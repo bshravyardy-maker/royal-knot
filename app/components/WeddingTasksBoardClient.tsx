@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   CheckSquare,
@@ -67,63 +67,95 @@ export function WeddingTasksBoardClient({
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // Map of team members
-  const memberMap = new Map<string, TeamMember>();
-  teamMembers.forEach((m) => memberMap.set(m.id, m));
+  // Map of team members (memoized)
+  const memberMap = useMemo(() => {
+    const m = new Map<string, TeamMember>();
+    teamMembers.forEach((mem) => m.set(mem.id, mem));
+    return m;
+  }, [teamMembers]);
 
-  // Map of weddings
-  const weddingMap = new Map<string, { id: string; title: string; wedding_date?: string; city?: string }>();
-  weddingsList.forEach((w) => weddingMap.set(w.id, w));
+  // Map of weddings (memoized)
+  const weddingMap = useMemo(() => {
+    const m = new Map<string, { id: string; title: string; wedding_date?: string; city?: string }>();
+    weddingsList.forEach((w) => m.set(w.id, w));
+    return m;
+  }, [weddingsList]);
 
-  // Filter tasks for the selected wedding
-  const weddingTasks = tasks.filter((t) => {
-    if (selectedWeddingId !== "All" && t.wedding_id !== selectedWeddingId) return false;
-    if (ownerFilter !== "All" && t.owner !== ownerFilter) return false;
-    if (activePhase !== "All" && t.phase !== activePhase) return false;
-    if (taskSearch.trim()) {
-      const q = taskSearch.toLowerCase();
-      return (
-        t.title.toLowerCase().includes(q) ||
-        (t.phase && t.phase.toLowerCase().includes(q))
-      );
-    }
-    return true;
-  });
+  // Selected Wedding Object (memoized)
+  const selectedWedding = useMemo(() => {
+    return weddingsList.find((w) => w.id === selectedWeddingId);
+  }, [weddingsList, selectedWeddingId]);
 
-  // Split into Done vs Not Done
-  const doneTasks = weddingTasks.filter((t) => t.stage === "Done");
-  const notDoneTasks = weddingTasks.filter(
-    (t) => t.stage !== "Done" || recentlyToggledIds.has(t.id)
-  );
+  // Calculate completion percentage for each wedding (Single-pass O(N) memoized)
+  const weddingProgressMap = useMemo(() => {
+    const progressMap = new Map<string, { done: number; total: number; pct: number }>();
+    weddingsList.forEach((w) => {
+      progressMap.set(w.id, { done: 0, total: 0, pct: 0 });
+    });
 
-  // Displayed tasks based on activeTab
-  const displayedTasks =
-    activeTab === "pending"
+    tasks.forEach((t) => {
+      const entry = progressMap.get(t.wedding_id);
+      if (entry) {
+        entry.total += 1;
+        if (t.stage === "Done") entry.done += 1;
+      }
+    });
+
+    progressMap.forEach((entry) => {
+      entry.pct = entry.total > 0 ? Math.round((entry.done / entry.total) * 100) : 0;
+    });
+
+    return progressMap;
+  }, [weddingsList, tasks]);
+
+  // Filter tasks for the selected wedding (memoized)
+  const weddingTasks = useMemo(() => {
+    const q = taskSearch.trim().toLowerCase();
+    return tasks.filter((t) => {
+      if (selectedWeddingId !== "All" && t.wedding_id !== selectedWeddingId) return false;
+      if (ownerFilter !== "All" && t.owner !== ownerFilter) return false;
+      if (activePhase !== "All" && t.phase !== activePhase) return false;
+      if (q) {
+        return (
+          t.title.toLowerCase().includes(q) ||
+          (t.phase && t.phase.toLowerCase().includes(q))
+        );
+      }
+      return true;
+    });
+  }, [tasks, selectedWeddingId, ownerFilter, activePhase, taskSearch]);
+
+  // Split into Done vs Not Done (memoized)
+  const doneTasks = useMemo(() => {
+    return weddingTasks.filter((t) => t.stage === "Done");
+  }, [weddingTasks]);
+
+  const notDoneTasks = useMemo(() => {
+    return weddingTasks.filter((t) => t.stage !== "Done" || recentlyToggledIds.has(t.id));
+  }, [weddingTasks, recentlyToggledIds]);
+
+  // Displayed tasks based on activeTab (memoized)
+  const displayedTasks = useMemo(() => {
+    return activeTab === "pending"
       ? notDoneTasks
       : activeTab === "done"
       ? doneTasks
       : weddingTasks;
+  }, [activeTab, notDoneTasks, doneTasks, weddingTasks]);
 
-  // Selected Wedding Object
-  const selectedWedding = weddingsList.find((w) => w.id === selectedWeddingId);
-
-  // Calculate completion percentage for each wedding
-  const weddingProgressMap = new Map<string, { done: number; total: number; pct: number }>();
-  weddingsList.forEach((w) => {
-    const wTasks = tasks.filter((t) => t.wedding_id === w.id);
-    const doneCount = wTasks.filter((t) => t.stage === "Done").length;
-    const totalCount = wTasks.length;
-    const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
-    weddingProgressMap.set(w.id, { done: doneCount, total: totalCount, pct });
-  });
-
-  const selectedStats = selectedWeddingId !== "All"
-    ? weddingProgressMap.get(selectedWeddingId) || { done: 0, total: 0, pct: 0 }
-    : {
-        done: tasks.filter((t) => t.stage === "Done").length,
-        total: tasks.length,
-        pct: tasks.length > 0 ? Math.round((tasks.filter((t) => t.stage === "Done").length / tasks.length) * 100) : 0,
-      };
+  // Selected stats summary (memoized)
+  const selectedStats = useMemo(() => {
+    if (selectedWeddingId !== "All") {
+      return weddingProgressMap.get(selectedWeddingId) || { done: 0, total: 0, pct: 0 };
+    }
+    const doneCount = tasks.filter((t) => t.stage === "Done").length;
+    const totalCount = tasks.length;
+    return {
+      done: doneCount,
+      total: totalCount,
+      pct: totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0,
+    };
+  }, [selectedWeddingId, weddingProgressMap, tasks]);
 
   async function handleToggleDone(taskId: string, currentStage: TaskStage) {
     const nextStage: TaskStage = currentStage === "Done" ? "In Progress" : "Done";
